@@ -1,0 +1,21 @@
+<?php
+
+namespace Database\Factories;
+
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+
+class ProveedorFactory extends Factory
+{
+
+    public function definition(): array
+    {
+        return [
+            'nombre' => fake()->company(),
+            'correo' => fake()->unique()->companyEmail(),
+            'telefono' => fake()->phoneNumber(),
+            'direccion' => fake()->address(),
+            'nota' => fake()->sentence(),
+        ];
+    }
+}
