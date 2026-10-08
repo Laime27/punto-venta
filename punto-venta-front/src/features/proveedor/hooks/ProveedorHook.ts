@@ -10,6 +10,7 @@ import {
 } from "../services/ProveedorService";
 import type { ProveedorType } from "../types/ProveedorType";
 import { getErrorMessage } from "@/lib/errorHandler";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export const useProveedorHook = () => {
   const queryClient = useQueryClient();
@@ -17,9 +18,12 @@ export const useProveedorHook = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selected, setSelected] = useState<ProveedorType | null>(null);
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
   const { data, isLoading } = useQuery({
-    queryKey: ["proveedores", page],
-    queryFn: () => listarProveedor(page),
+    queryKey: ["proveedores", page, debouncedSearchTerm],
+    queryFn: () => listarProveedor(page, debouncedSearchTerm),
   });
 
   const proveedores: ProveedorType[] = data?.data ?? [];
@@ -86,6 +90,8 @@ export const useProveedorHook = () => {
   return {
     data: { proveedores, isLoading, total },
     pagination: { page, totalPages, setPage },
+    searchTerm,
+    setSearchTerm,
     modal: { modalOpen, selected, abrirCrear, abrirEditar, cerrarModal, onModalSubmit },
     eliminar,
   };

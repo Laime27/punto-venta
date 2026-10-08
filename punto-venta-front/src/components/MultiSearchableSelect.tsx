@@ -28,14 +28,20 @@ export function MultiSearchableSelect({
 }: MultiSearchableSelectProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
   const { data: options = [], isLoading } = useQuery({
-    queryKey: [queryKey, search],
-    queryFn: () => fetchFn(search),
+    queryKey: [queryKey, debouncedSearch],
+    queryFn: () => fetchFn(debouncedSearch),
   });
 
-  const selectedOptions = options.filter((opt) => value.includes(opt.id));
+  // const selectedOptions = options.filter((opt) => value.includes(opt.id));
 
   // Opciones que faltan cargar (si estaban seleccionadas pero la búsqueda actual no las incluye)
   const [cachedOptions, setCachedOptions] = useState<Option[]>([]);
@@ -101,7 +107,7 @@ export function MultiSearchableSelect({
         ) : (
           <span className="text-muted-foreground py-0.5">{placeholder}</span>
         )}
-        
+
         {/* Espacio para hacer click en el resto del contenedor */}
         <div className="flex-1 min-w-[2px]" />
 
@@ -137,9 +143,8 @@ export function MultiSearchableSelect({
                   <div
                     key={option.id}
                     onClick={() => toggleOption(option.id)}
-                    className={`relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 ${
-                      isSelected ? "bg-accent text-accent-foreground font-medium" : ""
-                    }`}
+                    className={`relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 ${isSelected ? "bg-accent text-accent-foreground font-medium" : ""
+                      }`}
                   >
                     {isSelected && (
                       <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">

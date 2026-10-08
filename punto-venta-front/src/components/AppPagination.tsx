@@ -49,6 +49,7 @@ export function AppPagination({ page, totalPages, onPageChange, disabled }: AppP
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
+            size="default"
             onClick={() => handleClick(page - 1)}
             aria-disabled={page <= 1 || disabled}
             className={
@@ -68,6 +69,7 @@ export function AppPagination({ page, totalPages, onPageChange, disabled }: AppP
             <PaginationItem key={p} className="hidden sm:block">
               <PaginationLink
                 isActive={p === page}
+                size="icon"
                 onClick={() => handleClick(p)}
                 className={disabled ? "pointer-events-none opacity-50" : "cursor-pointer"}
               >
@@ -79,6 +81,7 @@ export function AppPagination({ page, totalPages, onPageChange, disabled }: AppP
 
         <PaginationItem>
           <PaginationNext
+            size="default"
             onClick={() => handleClick(page + 1)}
             aria-disabled={page >= totalPages || disabled}
             className={

@@ -13,7 +13,7 @@ import {
 
 import { Layers } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
-import { menuItems, puntoVentaItem, type MenuItemsProps } from "./sidebarItems"
+import { menuGroups, puntoVentaItem, type MenuItemsProps } from "./sidebarItems"
 
 function DashboardSidebar() {
   const location = useLocation()
@@ -45,7 +45,8 @@ function DashboardSidebar() {
 
   return (
     <Sidebar className="border-r">
-      <SidebarHeader className="border-b">
+    <SidebarHeader className="border-b border-sidebar-border">
+
         <div className="flex h-14 items-center px-4">
           <Layers className="mr-2 h-6 w-6" />
           <span className="text-lg font-semibold">Dashboard</span>
@@ -60,12 +61,14 @@ function DashboardSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
-          <SidebarGroupContent>
-            {renderMenuItems(menuItems)}
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {menuGroups.map((group) => (
+          <SidebarGroup key={group.label}>
+            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              {renderMenuItems(group.items)}
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
         
       </SidebarContent>
 

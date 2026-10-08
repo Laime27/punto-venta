@@ -1,5 +1,5 @@
 import { useConfirmDialog } from "@/hooks/useConfirmDialog"
-import { Plus } from "lucide-react"
+import { Plus, Search } from "lucide-react"
 import { AppPagination } from "@/components/AppPagination"
 import { ConfirmDialog } from "@/components/ConfirmDialog"
 import {
@@ -8,14 +8,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { useClienteHook } from "../hooks/ClienteHook"
 import { ClienteModal } from "./ClienteModal"
 import { ClienteTableBody } from "./ClienteTableBody"
 import { Badge } from "@/components/ui/badge"
 
 export function ClienteTable() {
-  const { data, pagination, modal, eliminar } = useClienteHook()
+  const { data, pagination, modal, eliminar, searchTerm, setSearchTerm } = useClienteHook()
   const confirm = useConfirmDialog()
 
   return (
@@ -33,33 +35,52 @@ export function ClienteTable() {
         </Button>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-16">#</TableHead>
-              <TableHead>Nombre</TableHead>
-              <TableHead>Contacto</TableHead>
-              <TableHead>Dirección</TableHead>
-              <TableHead className="w-28 text-center">Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <ClienteTableBody
-            isLoading={data.isLoading}
-            clientes={data.clientes}
-            page={pagination.page}
-            onEdit={modal.abrirEditar}
-            onDelete={confirm.abrir}
-          />
-        </Table>
-      </div>
+      <Card>
+        <CardContent className="p-0">
+          <div className="p-6 flex items-center justify-end">
+            <div className="relative w-full sm:w-[300px]">
+              <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Buscar cliente..."
+                className="pl-9"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
 
-        <AppPagination
-          page={pagination.page}
-          totalPages={pagination.totalPages}
-          onPageChange={pagination.setPage}
-          disabled={data.isLoading}
-        />
+          <div className="border-t">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-16">#</TableHead>
+                  <TableHead>Nombre</TableHead>
+                  <TableHead>Contacto</TableHead>
+                  <TableHead>Dirección</TableHead>
+                  <TableHead className="w-28 text-center">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <ClienteTableBody
+                isLoading={data.isLoading}
+                clientes={data.clientes}
+                page={pagination.page}
+                onEdit={modal.abrirEditar}
+                onDelete={confirm.abrir}
+              />
+            </Table>
+          </div>
+
+          <div className="p-6">
+            <AppPagination
+              page={pagination.page}
+              totalPages={pagination.totalPages}
+              onPageChange={pagination.setPage}
+              disabled={data.isLoading}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       <ClienteModal
         open={modal.modalOpen}

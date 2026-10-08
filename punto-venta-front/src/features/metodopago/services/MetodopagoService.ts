@@ -28,7 +28,8 @@ export const actualizarMetodoPago = async (id: number, payload: { nombre: string
   return data;
 };
 
-export const eliminarMetodoPago = async (id: number) => {
-  await axios.delete(`/metodo-pago/${id}`);
+export const cambiarEstadoMetodoPago = async (id: number) => {
+  const { data } = await axios.patch(`${BASE}/${id}/estado`);
+  return data;
 };
 

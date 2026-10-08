@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ProveedorSchema, type ProveedorFormData } from "../validations/ProveedorValidation";
 import type { ProveedorType } from "../types/ProveedorType";
@@ -84,7 +85,7 @@ export function ProveedorModal({ open, onClose, onSubmit, proveedor }: Proveedor
 
           <div className="space-y-1">
             <Label htmlFor="nota">Nota</Label>
-            <Input id="nota" {...register("nota")} />
+            <Textarea id="nota" {...register("nota")} maxLength={255} className="resize-none" rows={3} />
             {errors.nota && <p className="text-sm text-destructive">{errors.nota.message}</p>}
           </div>
 

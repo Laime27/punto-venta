@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Check, ChevronDown, Loader2, Search } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
@@ -32,12 +32,24 @@ export function SearchableSelect({
 }: SearchableSelectProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const { data: options = [], isLoading } = useQuery({
-    queryKey: [queryKey, search],
-    queryFn: () => fetchFn(search),
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const { data: optionsRaw, isLoading } = useQuery({
+    queryKey: [queryKey, debouncedSearch],
+    queryFn: () => fetchFn(debouncedSearch),
   });
+
+  // Estabilizamos la referencia del array para evitar loops infinitos en el useEffect de caché
+  const options = useMemo<Option[]>(
+    () => (Array.isArray(optionsRaw) ? optionsRaw : []),
+    [optionsRaw]
+  );
 
   // Opciones en caché (recuerda todas las opciones vistas para no perder el nombre si se limpia la búsqueda)
   const [cachedOptions, setCachedOptions] = useState<Option[]>([]);
@@ -109,9 +121,8 @@ export function SearchableSelect({
                       setOpen(false);
                       setSearch("");
                     }}
-                    className={`relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 ${
-                      !value ? "bg-accent text-accent-foreground" : ""
-                    }`}
+                    className={`relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 ${!value ? "bg-accent text-accent-foreground" : ""
+                      }`}
                   >
                     {!value && (
                       <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
@@ -129,9 +140,8 @@ export function SearchableSelect({
                       setOpen(false);
                       setSearch("");
                     }}
-                    className={`relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 ${
-                      value === option.id ? "bg-accent text-accent-foreground" : ""
-                    }`}
+                    className={`relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 ${value === option.id ? "bg-accent text-accent-foreground" : ""
+                      }`}
                   >
                     {value === option.id && (
                       <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">

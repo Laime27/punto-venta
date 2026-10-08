@@ -6,11 +6,13 @@ use App\Models\Categoria;
 
 class CategoriaService
 {
-    public function listarCategoria($search = "")
+    public function listarCategoria($request)
     {
-        return Categoria::when($search, fn($q) => $q->where('nombre', 'like', "%{$search}%"))
-            ->latest('id')
-            ->paginate(10);
+        $query = Categoria::query();
+        if ($request->search) {
+            $query->where('nombre', 'like', "%{$request->search}%");
+        }
+        return $query->latest('id')->paginate(10);
     }
 
     public function listarSelect($search = null)
@@ -27,19 +29,19 @@ class CategoriaService
         return Categoria::create($datos);
     }
 
-    public function obtenerPorId(string $id)
+    public function obtenerPorId(int $id)
     {
         return Categoria::findOrFail($id);
     }
 
-    public function actualizarCategoria(string $id, array $datos)
+    public function actualizarCategoria(int $id, array $datos)
     {
         $categoria = Categoria::findOrFail($id);
         $categoria->update($datos);
         return $categoria;
     }
 
-    public function eliminarCategoria(string $id)
+    public function eliminarCategoria(int $id)
     {
         $categoria = Categoria::findOrFail($id);
         return $categoria->delete();

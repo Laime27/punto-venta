@@ -1,6 +1,6 @@
 import axios from "@/lib/axiosConfig";
 
-export const listPos = async () => {
-  const { data } = await axios.get("/pos");
-  return data;
+export const registrarVenta = async (data: any) => {
+  const { data: response } = await axios.post("/comprobante/registrar-venta", data);
+  return response;
 };

@@ -15,7 +15,7 @@ class MetodoPagoService
 
     public function listarTodos()
     {
-        return MetodoPago::latest('id')->get();
+        return MetodoPago::latest('id')->where('activo', true)->get();
     }
 
     public function crearMetodoPago(array $datos)
@@ -23,21 +23,31 @@ class MetodoPagoService
         return MetodoPago::create($datos);
     }
 
-    public function obtenerPorId(string $id)
+    public function obtenerPorId(int $id)
     {
         return MetodoPago::findOrFail($id);
     }
 
-    public function actualizarMetodoPago(string $id, array $datos)
+    public function actualizarMetodoPago(int $id, array $datos)
     {
         $metodoPago = MetodoPago::findOrFail($id);
         $metodoPago->update($datos);
         return $metodoPago;
     }
 
-    public function eliminarMetodoPago(string $id)
+    public function cambiarEstado(int $id)
     {
         $metodoPago = MetodoPago::findOrFail($id);
-        return $metodoPago->delete();
+
+        $metodoPago->update([
+            'activo' => !$metodoPago->activo,
+        ]);
+
+        $mensaje = $metodoPago->activo ? 'Método de pago activado correctamente' : 'Método de pago desactivado correctamente';
+
+        return [
+            'mensaje' => $mensaje,
+            'activo' => $metodoPago->activo,
+        ];
     }
 }

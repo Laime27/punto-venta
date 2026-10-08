@@ -9,10 +9,10 @@ import { Outlet } from "react-router-dom";
 
 export default function CategoriaPageDashboard() {
   return (
-      <SidebarProvider className="">
+      <SidebarProvider className=" bg-background">
         <DashboardSidebar />
 
-        <div className="flex flex-1 flex-col min-w-0 h-full bg-background">
+        <div className="flex flex-1 flex-col min-w-0 h-full">
           <DashboardHeader />
 
           <main className="flex-1 overflow-y-auto px-2 sm:px-4 lg:px-6">

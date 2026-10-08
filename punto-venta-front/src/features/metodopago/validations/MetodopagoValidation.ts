@@ -7,7 +7,7 @@ export const MetodoPagoSchema = z.object({
     .max(100, "El nombre no puede superar los 100 caracteres"),
 
   tipo: z.enum(['efectivo', 'tarjeta', 'transferencia'], {
-    errorMap: () => ({ message: "Selecciona un tipo válido" })
+    message: "Selecciona un tipo válido"
   }),
 
 });

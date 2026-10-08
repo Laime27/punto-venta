@@ -10,9 +10,9 @@ class ClienteController extends Controller
 {
     public function __construct(protected ClienteService $clienteService) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json($this->clienteService->listarCliente());
+        return response()->json($this->clienteService->listarCliente($request));
     }
 
     public function listarSelect(Request $request)
@@ -26,18 +26,18 @@ class ClienteController extends Controller
         return response()->json($cliente, 201);
     }
 
-    public function show(string $id)
+    public function show(int $id)
     {
         return response()->json($this->clienteService->obtenerPorId($id));
     }
 
-    public function update(ClienteRequest $request, string $id)
+    public function update(ClienteRequest $request, int $id)
     {
         $cliente = $this->clienteService->actualizarCliente($id, $request->validated());
         return response()->json($cliente);
     }
 
-    public function destroy(string $id)
+    public function destroy(int $id)
     {
         $this->clienteService->eliminarCliente($id);
         return response()->json(null, 204);

@@ -1,23 +1,13 @@
-import { useState, useEffect } from "react";
-import {listarMetodoPagoTodos } from "@/features/metodopago/services/MetodopagoService";
+import { useQuery } from "@tanstack/react-query";
+import { listarMetodoPagoTodos } from "@/features/metodopago/services/MetodopagoService";
 
 export const usePosHook = () => {
-  
-  const [listaMetodoPago, setListaMetodoPago] = useState([]);
-
-
-  useEffect(() => {
-      listarMetodoPago()
-  }, []);
-
-
-  const listarMetodoPago = async () => {
-    const data = await listarMetodoPagoTodos();
-    setListaMetodoPago(data);
-  };  
+  const { data: listaMetodoPago = [] } = useQuery({
+    queryKey: ["metodosPagoTodos"],
+    queryFn: listarMetodoPagoTodos,
+  });
 
   return {
     listaMetodoPago,
-  
   };
 };

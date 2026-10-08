@@ -10,9 +10,9 @@ class ProveedorController extends Controller
 {
     public function __construct(protected ProveedorService $proveedorService) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json($this->proveedorService->listarProveedor());
+        return response()->json($this->proveedorService->listarProveedor($request));
     }
 
     public function listarSelect(Request $request)
@@ -26,18 +26,18 @@ class ProveedorController extends Controller
         return response()->json($proveedor, 201);
     }
 
-    public function show(string $id)
+    public function show(int $id)
     {
         return response()->json($this->proveedorService->obtenerPorId($id));
     }
 
-    public function update(ProveedorRequest $request, string $id)
+    public function update(ProveedorRequest $request, int $id)
     {
         $proveedor = $this->proveedorService->actualizarProveedor($id, $request->validated());
         return response()->json($proveedor);
     }
 
-    public function destroy(string $id)
+    public function destroy(int $id)
     {
         $this->proveedorService->eliminarProveedor($id);
         return response()->json(null, 204);

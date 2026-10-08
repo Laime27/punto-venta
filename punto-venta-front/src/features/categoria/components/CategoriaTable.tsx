@@ -1,5 +1,5 @@
 import { useConfirmDialog } from "@/hooks/useConfirmDialog";
-import { Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { AppPagination } from "@/components/AppPagination";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import {
@@ -8,14 +8,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useCategoriaHook } from "../hooks/CategoriaHook";
 import { CategoriaModal } from "./CategoriaModal";
 import { CategoriaTableBody } from "./CategoriaTableBody";
 import { Badge } from "@/components/ui/badge"
 
 export function CategoriaTable() {
-  const { data, pagination, modal, eliminar } = useCategoriaHook();
+  const { data, pagination, modal, eliminar, searchTerm, setSearchTerm } = useCategoriaHook();
 
   const confirm = useConfirmDialog();
 
@@ -34,31 +36,50 @@ export function CategoriaTable() {
         </Button>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-16">#</TableHead>
-              <TableHead>Nombre</TableHead>
-              <TableHead className="w-28 text-center">Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <CategoriaTableBody
-            isLoading={data.isLoading}
-            categorias={data.categorias}
-            page={pagination.page}
-            onEdit={modal.abrirEditar}
-            onDelete={confirm.abrir}
-          />
-        </Table>
-      </div>
+      <Card>
+        <CardContent className="p-0">
+          <div className="p-6 flex items-center justify-end">
+            <div className="relative w-full sm:w-[300px]">
+              <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Buscar categoría..."
+                className="pl-9"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
 
-      <AppPagination
-        page={pagination.page}
-        totalPages={pagination.totalPages}
-        onPageChange={pagination.setPage}
-        disabled={data.isLoading}
-      />
+          <div className="border-t">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-16">#</TableHead>
+                  <TableHead>Nombre</TableHead>
+                  <TableHead className="w-28 text-center">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <CategoriaTableBody
+                isLoading={data.isLoading}
+                categorias={data.categorias}
+                page={pagination.page}
+                onEdit={modal.abrirEditar}
+                onDelete={confirm.abrir}
+              />
+            </Table>
+          </div>
+
+          <div className="p-6">
+            <AppPagination
+              page={pagination.page}
+              totalPages={pagination.totalPages}
+              onPageChange={pagination.setPage}
+              disabled={data.isLoading}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       <CategoriaModal
         open={modal.modalOpen}

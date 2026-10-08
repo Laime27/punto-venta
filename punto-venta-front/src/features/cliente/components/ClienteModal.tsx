@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ClienteSchema, type ClienteFormData } from "../validations/ClienteValidation";
 import type { ClienteType } from "../types/ClienteType";
@@ -84,7 +85,7 @@ export function ClienteModal({ open, onClose, onSubmit, cliente }: ClienteModalP
 
           <div className="space-y-1">
             <Label htmlFor="nota">Nota</Label>
-            <Input id="nota" {...register("nota")} />
+            <Textarea id="nota" {...register("nota")} maxLength={255} className="resize-none" rows={3} />
             {errors.nota && <p className="text-sm text-destructive">{errors.nota.message}</p>}
           </div>
 

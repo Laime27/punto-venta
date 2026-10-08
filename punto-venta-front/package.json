@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "cross-env NODE_OPTIONS=--max-old-space-size=4096 vite",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=4096 tsc -b && vite build",
+    "prepare:backend": "bash scripts/prepare-backend.sh",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
@@ -18,6 +19,7 @@
     "@radix-ui/react-dialog": "^1.1.17",
     "@radix-ui/react-select": "^2.3.1",
     "@radix-ui/react-slot": "^1.3.0",
+    "@radix-ui/react-switch": "^1.3.7",
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/react-query": "^5.101.0",
     "axios": "^1.15.0",

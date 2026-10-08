@@ -2,8 +2,8 @@ import axios from "@/lib/axiosConfig";
 
 const BASE = "/cliente";
 
-export const listarCliente = async (page: number = 1) => {
-  const { data } = await axios.get(BASE, { params: { page } });
+export const listarCliente = async (page: number = 1, search?: string) => {
+  const { data } = await axios.get(BASE, { params: { page, search } });
   return data;
 };
 

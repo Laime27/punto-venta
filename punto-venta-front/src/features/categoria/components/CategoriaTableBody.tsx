@@ -46,7 +46,7 @@ export function CategoriaTableBody({
     <TableBody>
       {categorias.map((categoria, index) => (
         <TableRow key={categoria.id} onClick={() => onEdit(categoria.id)}>
-          <TableCell className="font-medium text-muted-foreground">
+          <TableCell className="font-medium">
             {(page - 1) * 10 + index + 1}
           </TableCell>
           <TableCell>{categoria.nombre}</TableCell>

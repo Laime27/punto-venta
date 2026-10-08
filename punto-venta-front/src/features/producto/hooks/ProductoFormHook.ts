@@ -67,16 +67,16 @@ export const useProductoFormHook = () => {
     form.reset({
       nombre: productoData.nombre,
       descripcion: productoData.descripcion ?? "",
-      precio_compra: productoData.precio_compra,
-      precio_venta: productoData.precio_venta,
-      precio_mayoreo: productoData.precio_mayoreo,
-      stock: productoData.stock,
-      stock_minimo: productoData.stock_minimo,
+      precio_compra: Number(productoData.precio_compra),
+      precio_venta: Number(productoData.precio_venta),
+      precio_mayoreo: Number(productoData.precio_mayoreo),
+      stock: Number(productoData.stock),
+      stock_minimo: Number(productoData.stock_minimo),
       codigo_barras: productoData.codigo_barras ?? "",
-      categoria_id: productoData.categoria_id ?? 0,
-      unidad_id: productoData.unidad_id ?? 0,
-      proveedores: productoData.proveedores?.map((p: any) => p.id) ?? [],
-      disponible_venta: productoData.disponible_venta,
+      categoria_id: productoData.categoria_id ? Number(productoData.categoria_id) : 0,
+      unidad_id: productoData.unidad_id ? Number(productoData.unidad_id) : 0,
+      proveedores: productoData.proveedores?.map((p: any) => Number(p.id)) ?? [],
+      disponible_venta: Boolean(productoData.disponible_venta),
     })
     if (productoData.imagen) setVistaPrevia(productoData.imagen)
   }, [productoData, form])

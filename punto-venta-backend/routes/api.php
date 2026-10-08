@@ -9,6 +9,10 @@ use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\UnidadController;
 use App\Http\Controllers\MetodoPagoController;
+use App\Http\Controllers\ComprobanteController;
+use App\Http\Controllers\HistorialMovimientoController;
+use App\Http\Controllers\OrdenCompraController;
+use App\Http\Controllers\CotizacionController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -22,6 +26,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::apiResource('categoria', CategoriaController::class);
 
     Route::get('producto/listar-select', [ProductoController::class, 'listarSelect']);
+    Route::get('producto/exportar', [ProductoController::class, 'exportar']);
+    Route::post('producto/importar', [ProductoController::class, 'importar']);
     Route::apiResource('producto', ProductoController::class);
 
     Route::get('unidad', [UnidadController::class, 'index']);
@@ -33,5 +39,17 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::apiResource('cliente', ClienteController::class);
 
     Route::get('metodo-pago/listar-todos', [MetodoPagoController::class, 'listarTodos']);
-    Route::apiResource('metodo-pago', MetodoPagoController::class);
+    Route::patch('metodo-pago/{id}/estado', [MetodoPagoController::class, 'cambiarEstado']);
+    Route::apiResource('metodo-pago', MetodoPagoController::class)->except(['destroy']);
+
+    Route::post('comprobante/registrar-venta', [ComprobanteController::class, 'registrarVenta']);
+    
+    Route::get('historial-movimiento', [HistorialMovimientoController::class, 'index']);
+    
+    Route::post('orden-compra/{id}/recibir', [OrdenCompraController::class, 'recibir']);
+    Route::apiResource('orden-compra', OrdenCompraController::class);
+
+    Route::patch('cotizacion/{id}/estado', [CotizacionController::class, 'cambiarEstado']);
+    Route::get('cotizacion/{id}/pdf', [CotizacionController::class, 'generarPdf']);
+    Route::apiResource('cotizacion', CotizacionController::class);
 });

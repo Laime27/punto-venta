@@ -1,7 +1,7 @@
 import axios from "@/lib/axiosConfig";
 
-export const listarCategoria = async (page = 1) => {
-  const { data } = await axios.get("/categoria", { params: { page } });
+export const listarCategoria = async (page = 1, search?: string) => {
+  const { data } = await axios.get("/categoria", { params: { page, search } });
   return data;
 };
 

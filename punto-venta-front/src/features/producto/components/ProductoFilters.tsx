@@ -24,7 +24,7 @@ export function ProductoFilters({ filtrosState, listarSelectCategoria }: Product
   const { filtros, setFiltros, searchTerm, setSearchTerm } = filtrosState
 
   return (
-    <div className="flex flex-col items-center justify-between gap-3 bg-card pb-2 sm:flex-row">
+    <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
       <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row">
         <div className="w-full sm:w-[240px]">
           <SearchableSelect

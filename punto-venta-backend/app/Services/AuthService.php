@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Exception;
+use App\Exceptions\BusinessException;
 
 class AuthService
 {
@@ -13,7 +14,7 @@ class AuthService
         $user = User::where('email', $data['email'])->first();
 
         if (! $user || ! Hash::check($data['password'], $user->password)) {
-            throw new Exception('Credenciales incorrectas');
+            throw new BusinessException('Credenciales incorrectas');
         }
 
         $token = $user->createToken('access-token')->plainTextToken;

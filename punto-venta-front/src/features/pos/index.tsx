@@ -1,17 +1,16 @@
 import { useState } from "react";
-import { POSCartTable } from "./components/carrito/POSCartTable";
-import { POSSummary } from "./components/detallecarrito/POSSummary";
-import { PosProvider } from "./context/PosContext";
+import { POSCarritoTabla } from "./components/carrito/POSCarritoTabla";
+import { POSResumen } from "./components/detallecarrito/POSResumen";
+import { PosProveedor } from "./context/PosContexto";
 import { ShoppingCart, CreditCard } from "lucide-react";
 
 export default function POS() {
   const [vistaActiva, setVistaActiva] = useState<"carrito" | "pago">("carrito");
 
   return (
-    <PosProvider>
+    <PosProveedor>
       <div className="flex flex-col h-[calc(100vh-3.5rem)] p-2 lg:p-3 xl:p-4 pt-2 gap-2 xl:gap-4 overflow-hidden">
         
-        {/* Selector de pestañas para móvil */}
         <div className="xl:hidden flex bg-muted/50 rounded-xl p-1 w-full border shrink-0">
           <button
             onClick={() => setVistaActiva("carrito")}
@@ -37,21 +36,19 @@ export default function POS() {
           </button>
         </div>
 
-        {/* Contenedor de las vistas */}
         <div className="flex flex-col xl:flex-row flex-1 gap-2 xl:gap-4 overflow-hidden">
-          {/* Carrito de Compras */}
+          
           <div className={`flex-1 overflow-hidden h-full ${vistaActiva === "carrito" ? "flex flex-col" : "hidden xl:flex xl:flex-col"}`}>
-            <POSCartTable />
+            <POSCarritoTabla />
           </div>
 
-          {/* Resumen y Cobro */}
           <div className={`w-full xl:w-[400px] 2xl:w-[450px] shrink-0 h-full overflow-hidden ${vistaActiva === "pago" ? "flex flex-col" : "hidden xl:flex xl:flex-col"}`}>
-            <POSSummary />
+            <POSResumen />
           </div>
         </div>
 
       </div>
-    </PosProvider>
+    </PosProveedor>
   );
 }
 

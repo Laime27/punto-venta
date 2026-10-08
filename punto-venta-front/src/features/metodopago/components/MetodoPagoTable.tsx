@@ -1,7 +1,5 @@
-import { useConfirmDialog } from "@/hooks/useConfirmDialog";
 import { Plus } from "lucide-react";
 import { AppPagination } from "@/components/AppPagination";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
 import {
   Table,
   TableHead,
@@ -13,10 +11,10 @@ import { useMetodoPagoHook } from "../hooks/MetodopagoHook";
 import { MetodoPagoModal } from "./MetodoPagoModal";
 import { MetodoPagoTableBody } from "./MetodoPagoTableBody";
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card";
 
 export function MetodoPagoTable() {
-  const { data, pagination, modal, eliminar } = useMetodoPagoHook();
-  const confirm = useConfirmDialog();
+  const { data, pagination, modal, cambiarEstado } = useMetodoPagoHook();
 
   return (
     <div className="space-y-4">
@@ -33,13 +31,15 @@ export function MetodoPagoTable() {
         </Button>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
+      <Card>
+        <CardContent className="p-0">
+          <Table>
           <TableHeader>
             <TableRow>
               <TableHead className="w-16">#</TableHead>
               <TableHead>Nombre</TableHead>
               <TableHead>Tipo</TableHead>
+              <TableHead>Estado</TableHead>
               <TableHead className="w-28 text-center">Acciones</TableHead>
             </TableRow>
           </TableHeader>
@@ -48,17 +48,20 @@ export function MetodoPagoTable() {
             metodosPago={data.metodosPago}
             page={pagination.page}
             onEdit={modal.abrirEditar}
-            onDelete={confirm.abrir}
+            onToggleEstado={cambiarEstado}
           />
-        </Table>
-      </div>
+          </Table>
 
-      <AppPagination
-        page={pagination.page}
-        totalPages={pagination.totalPages}
-        onPageChange={pagination.setPage}
-        disabled={data.isLoading}
-      />
+          <div className="p-6">
+            <AppPagination
+              page={pagination.page}
+              totalPages={pagination.totalPages}
+              onPageChange={pagination.setPage}
+              disabled={data.isLoading}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       <MetodoPagoModal
         open={modal.modalOpen}
@@ -67,12 +70,6 @@ export function MetodoPagoTable() {
         metodoPago={modal.selected}
       />
 
-      <ConfirmDialog
-        open={confirm.abierto}
-        onClose={confirm.cerrar}
-        onConfirm={() => eliminar(confirm.idSeleccionado!)}
-        title="¿Eliminar método de pago?"
-      />
     </div>
   );
 }

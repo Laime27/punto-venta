@@ -2,8 +2,8 @@ import axios from "@/lib/axiosConfig";
 
 const BASE = "/proveedor";
 
-export const listarProveedor = async (page: number = 1) => {
-  const { data } = await axios.get(BASE, { params: { page } });
+export const listarProveedor = async (page: number = 1, search?: string) => {
+  const { data } = await axios.get(BASE, { params: { page, search } });
   return data;
 };
 

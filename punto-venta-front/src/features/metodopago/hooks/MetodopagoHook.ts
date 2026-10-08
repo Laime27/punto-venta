@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { listarMetodoPago, crearMetodoPago, actualizarMetodoPago, eliminarMetodoPago, obtenerMetodoPagoId } from "../services/MetodopagoService";
+import { listarMetodoPago, crearMetodoPago, actualizarMetodoPago, cambiarEstadoMetodoPago, obtenerMetodoPagoId } from "../services/MetodopagoService";
 import type { MetodoPagoType } from "../types/MetodopagoType";
 
 import { getErrorMessage } from "@/lib/errorHandler";
@@ -39,14 +39,13 @@ export const useMetodoPagoHook = () => {
     onError: (error) => toast.error(getErrorMessage(error, "Error al actualizar el método de pago")),
   });
 
-  const { mutate: eliminar } = useMutation({
-    mutationFn: (id: number) => eliminarMetodoPago(id),
-    onSuccess: () => {
-      toast.success("Método de pago eliminado correctamente");
-      if (metodosPago.length === 1 && page > 1) setPage((p) => p - 1);
-      else queryClient.invalidateQueries({ queryKey: ["metodosPago"] });
+  const { mutate: cambiarEstado } = useMutation({
+    mutationFn: (id: number) => cambiarEstadoMetodoPago(id),
+    onSuccess: (data) => {
+      toast.success(data?.mensaje || "Estado actualizado correctamente");
+      queryClient.invalidateQueries({ queryKey: ["metodosPago"] });
     },
-    onError: (error) => toast.error(getErrorMessage(error, "Error al eliminar el método de pago")),
+    onError: (error) => toast.error(getErrorMessage(error, "Error al actualizar el estado")),
   });
 
   const abrirCrear = () => {
@@ -82,6 +81,6 @@ export const useMetodoPagoHook = () => {
     data: { metodosPago, isLoading, total },
     pagination: { page, totalPages, setPage },
     modal: { modalOpen, selected, abrirCrear, abrirEditar, cerrarModal, onModalSubmit },
-    eliminar,
+    cambiarEstado,
   };
 };

@@ -46,19 +46,19 @@ export function ProveedorTableBody({
     <TableBody>
       {proveedores.map((proveedor, index) => (
         <TableRow key={proveedor.id} onClick={() => onEdit(proveedor.id)}>
-          <TableCell className="font-medium text-muted-foreground">
+          <TableCell className="font-medium">
             {(page - 1) * 10 + index + 1}
           </TableCell>
           <TableCell>
             <div>{proveedor.nombre}</div>
             {proveedor.nota && (
-              <div className="mt-1 max-w-[200px] truncate text-xs text-muted-foreground">
+              <div className="mt-1 max-w-[200px] truncate text-xs">
                 {proveedor.nota}
               </div>
             )}
           </TableCell>
           <TableCell>
-            <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+            <div className="flex flex-col gap-1 text-sm">
               {proveedor.correo && (
                 <span className="flex items-center gap-1">
                   <Mail className="h-3 w-3" /> {proveedor.correo}
@@ -74,7 +74,7 @@ export function ProveedorTableBody({
           </TableCell>
           <TableCell>
             {proveedor.direccion ? (
-              <span className="flex items-center gap-1 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1 text-sm">
                 <MapPin className="h-3 w-3 flex-shrink-0" />
                 {proveedor.direccion}
               </span>

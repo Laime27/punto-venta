@@ -3,6 +3,8 @@ import { TableBody, TableCell, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { ProductoType } from "../types/ProductoType"
+import { formatearMoneda } from "@/lib/utils"
+import { SIMBOLO_MONEDA } from "@/lib/constants"
 
 interface ProductoTableBodyProps {
   isLoading: boolean
@@ -45,7 +47,7 @@ export function ProductoTableBody({
     <TableBody>
       {productos.map((producto) => (
         <TableRow key={producto.id}>
-          <TableCell className="text-center">
+          <TableCell>
             {producto.imagen ? (
               <img
                 src={producto.imagen}
@@ -58,39 +60,37 @@ export function ProductoTableBody({
               </div>
             )}
           </TableCell>
-          <TableCell className="text-center font-medium">
+          <TableCell className="font-medium">
             {producto.nombre}
-            <span className="mt-0.5 block text-xs text-muted-foreground">
+            <span className="mt-0.5 block text-xs">
               {producto.codigo_barras || ""}
             </span>
           </TableCell>
-          <TableCell className="text-center text-muted-foreground">
-            <Badge variant="secondary">
-              {producto.categoria?.nombre ?? ""}
-            </Badge>
+          <TableCell>
+            {producto.categoria?.nombre ?? ""}
           </TableCell>
-          <TableCell className="text-center font-medium">
-            ${Number(producto.precio_compra || 0).toFixed(2)}
+          <TableCell className="font-medium">
+            {SIMBOLO_MONEDA} {formatearMoneda(producto.precio_compra)}
           </TableCell>
-          <TableCell className="text-center font-medium">
-            ${Number(producto.precio_mayoreo || 0).toFixed(2)}
+          <TableCell className="font-medium">
+            {SIMBOLO_MONEDA} {formatearMoneda(producto.precio_mayoreo)}
           </TableCell>
-          <TableCell className="text-center font-medium">
-            ${Number(producto.precio_venta || 0).toFixed(2)}
+          <TableCell className="font-medium">
+            {SIMBOLO_MONEDA} {formatearMoneda(producto.precio_venta)}
           </TableCell>
-          <TableCell className="text-center">
+          <TableCell>
             {producto.stock}
           </TableCell>
-          <TableCell className="text-center">
+          <TableCell>
             <Badge
-              variant={
-                producto.disponible_venta ? "default" : "secondary"
+              className={
+                producto.disponible_venta ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600"
               }
             >
-              {producto.disponible_venta ? "Sí" : "No"}
+              {producto.disponible_venta ? "Disponible" : "No Disponible"}
             </Badge>
           </TableCell>
-          <TableCell className="text-center">
+          <TableCell>
             <div className="flex justify-center gap-2">
               <Button
                 size="icon"

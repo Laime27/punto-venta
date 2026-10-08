@@ -11,6 +11,7 @@ import {
   useUpdateClienteMutation,
   useDeleteClienteMutation,
 } from "./useClienteMutations"
+import { useDebounce } from "@/hooks/useDebounce"
 
 export const useClienteHook = () => {
   const queryClient = useQueryClient()
@@ -18,9 +19,12 @@ export const useClienteHook = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [selected, setSelected] = useState<ClienteType | null>(null)
 
+  const [searchTerm, setSearchTerm] = useState("")
+  const debouncedSearchTerm = useDebounce(searchTerm, 500)
+
   const { data, isLoading } = useQuery({
-    queryKey: ["clientes", page],
-    queryFn: () => listarCliente(page),
+    queryKey: ["clientes", page, debouncedSearchTerm],
+    queryFn: () => listarCliente(page, debouncedSearchTerm),
   })
 
   const clientes: ClienteType[] = data?.data ?? []
@@ -70,6 +74,8 @@ export const useClienteHook = () => {
   return {
     data: { clientes, isLoading, total },
     pagination: { page, totalPages, setPage },
+    searchTerm,
+    setSearchTerm,
     modal: {
       modalOpen,
       selected,

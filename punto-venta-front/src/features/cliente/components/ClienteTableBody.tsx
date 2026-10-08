@@ -46,19 +46,19 @@ export function ClienteTableBody({
     <TableBody>
       {clientes.map((cliente, index) => (
         <TableRow key={cliente.id} onClick={() => onEdit(cliente.id)}>
-          <TableCell className="font-medium text-muted-foreground">
+          <TableCell className="font-medium">
             {(page - 1) * 10 + index + 1}
           </TableCell>
           <TableCell>
             <div>{cliente.nombre}</div>
             {cliente.nota && (
-              <div className="mt-1 max-w-[200px] truncate text-xs text-muted-foreground">
+              <div className="mt-1 max-w-[200px] truncate text-xs">
                 {cliente.nota}
               </div>
             )}
           </TableCell>
           <TableCell>
-            <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+            <div className="flex flex-col gap-1 text-sm">
               {cliente.correo && (
                 <span className="flex items-center gap-1">
                   <Mail className="h-3 w-3" /> {cliente.correo}
@@ -74,7 +74,7 @@ export function ClienteTableBody({
           </TableCell>
           <TableCell>
             {cliente.direccion ? (
-              <span className="flex items-center gap-1 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1 text-sm">
                 <MapPin className="h-3 w-3 flex-shrink-0" />
                 {cliente.direccion}
               </span>

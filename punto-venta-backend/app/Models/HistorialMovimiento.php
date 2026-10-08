@@ -13,9 +13,23 @@ class HistorialMovimiento extends Model
     protected $table = 'historial_movimientos';
     protected $guarded = [];
 
+   
+
+    protected $appends = ['nombre_documento'];
+
+    public function getNombreDocumentoAttribute()
+    {
+        if (!$this->documento_type) {
+            return ' ';
+        }
+        
+        $partes = explode('\\', $this->documento_type);
+        return end($partes);
+    }
+
     public function producto()
     {
-        return $this->belongsTo(Producto::class);
+        return $this->belongsTo(Producto::class)->withTrashed();
     }
 
     public function user()

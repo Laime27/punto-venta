@@ -34,6 +34,6 @@ export interface FiltrosProductosType {
   categoria_id?: number | null;
   disponibilidad?: 1 | 0;
   stock?: "todos" | "stock_bajo" | "stock_normal" ;
-  buscar?: string;
+  search?: string;
   // disponibilidad?: "todos" | "disponible" | "no_disponible";
 }

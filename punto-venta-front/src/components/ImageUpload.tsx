@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { ImagePlus, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
 
 interface SubirImagenProps {
   vistaPrevia: string | null;

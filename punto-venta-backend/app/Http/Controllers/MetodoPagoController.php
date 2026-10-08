@@ -34,21 +34,21 @@ class MetodoPagoController extends Controller
         return response()->json($metodo, 201);
     }
 
-    public function show(string $id)
+    public function show(int $id)
     {
         $metodo = $this->metodoPagoService->obtenerPorId($id);
         return response()->json($metodo);
     }
 
-    public function update(MetodoPagoRequest $request, string $id)
+    public function update(MetodoPagoRequest $request, int $id)
     {
         $metodo = $this->metodoPagoService->actualizarMetodoPago($id, $request->validated());
         return response()->json($metodo);
     }
 
-    public function destroy(string $id)
+    public function cambiarEstado(int $id)
     {
-        $this->metodoPagoService->eliminarMetodoPago($id);
-        return response()->json(null, 204);
+        $resultado = $this->metodoPagoService->cambiarEstado($id);
+        return response()->json($resultado);
     }
 }

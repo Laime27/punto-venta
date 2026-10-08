@@ -10,6 +10,7 @@ import {
 } from "../services/CategoriaService";
 import type { CategoriaType } from "../types/CategoriaType";
 import { getErrorMessage } from "@/lib/errorHandler";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export const useCategoriaHook = () => {
   const queryClient = useQueryClient();
@@ -17,9 +18,12 @@ export const useCategoriaHook = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selected, setSelected] = useState<CategoriaType | null>(null);
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
   const { data, isLoading } = useQuery({
-    queryKey: ["categorias", page],
-    queryFn: () => listarCategoria(page),
+    queryKey: ["categorias", page, debouncedSearchTerm],
+    queryFn: () => listarCategoria(page, debouncedSearchTerm),
   });
 
   const categorias: CategoriaType[] = data?.data ?? [];
@@ -86,6 +90,8 @@ export const useCategoriaHook = () => {
   return {
     data: { categorias, isLoading, total },
     pagination: { page, totalPages, setPage },
+    searchTerm,
+    setSearchTerm,
     modal: { modalOpen, selected, abrirCrear, abrirEditar, cerrarModal, onModalSubmit },
     eliminar,
   };

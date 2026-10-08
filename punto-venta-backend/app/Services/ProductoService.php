@@ -21,7 +21,7 @@ class ProductoService
             });
         }
 
-        return $query->with('unidad:id,nombre,permite_decimales')->limit(10)->get(['id', 'nombre', 'precio_venta', 'precio_mayoreo', 'stock', 'codigo_barras', 'unidad_id', 'imagen']);
+        return $query->with('unidad:id,nombre,permite_decimales')->limit(10)->get(['id', 'nombre', 'precio_venta', 'precio_mayoreo','precio_compra', 'stock', 'codigo_barras', 'unidad_id', 'imagen']);
     }
 
     public function listarProductos($request)
@@ -45,8 +45,8 @@ class ProductoService
             $query->where('disponible_venta', $request->disponibilidad);
         }
 
-        if ($request->buscar) {
-            $query->where('nombre', 'like', "%{$request->buscar}%");
+        if ($request->search) {
+            $query->where('nombre', 'like', "%{$request->search}%");
         }
 
         $productos = $query->orderBy('id', 'desc')->paginate(10);
@@ -81,12 +81,12 @@ class ProductoService
         return $producto->load(['categoria', 'unidad', 'proveedores']);
     }
 
-    public function obtenerPorId(string $id): Producto
+    public function obtenerPorId(int $id): Producto
     {
         return Producto::with(['categoria', 'unidad', 'proveedores'])->findOrFail($id);
     }
 
-    public function actualizarProducto(string $id, array $datos, $imagen = null): Producto
+    public function actualizarProducto(int $id, array $datos, $imagen = null): Producto
     {
         $producto = Producto::findOrFail($id);
 
@@ -106,7 +106,7 @@ class ProductoService
         return $producto->load(['categoria', 'unidad', 'proveedores']);
     }
 
-    public function eliminarProducto(string $id): void
+    public function eliminarProducto(int $id): void
     {
         Producto::findOrFail($id)->delete();
     }

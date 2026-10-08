@@ -1,6 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::process::{Command, Child};
+use std::process::{Child, Command};
 use std::sync::Mutex;
 use tauri::Manager;
 
@@ -10,11 +10,23 @@ fn main() {
     tauri::Builder::default()
         .setup(|app| {
             let resource_dir = app.path().resource_dir().unwrap();
-
-            let php_path = resource_dir.join("php").join("php.exe");
             let laravel_path = resource_dir.join("laravel-backend");
 
-            let child = Command::new(&php_path)
+            #[cfg(target_os = "windows")]
+            let php_path = resource_dir.join("php").join("php.exe");
+            #[cfg(not(target_os = "windows"))]
+            let php_path = std::path::PathBuf::from("/usr/bin/docker");
+
+            let mut cmd = Command::new(&php_path);
+            #[cfg(not(target_os = "windows"))]
+            {
+                cmd.arg("exec")
+                    .arg("-w")
+                    .arg("/var/www/html")
+                    .arg("laravel_app")
+                    .arg("php");
+            }
+            let child = cmd
                 .arg(laravel_path.join("artisan"))
                 .arg("serve")
                 .arg("--host=127.0.0.1")

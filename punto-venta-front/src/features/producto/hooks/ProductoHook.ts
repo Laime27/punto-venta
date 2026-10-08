@@ -15,23 +15,23 @@ export const useProductoHook = () => {
     categoria_id: null as number | null,
     disponibilidad: undefined,
     stock: "todos",
-    buscar: "",
+    search: "",
   });
 
-  const [searchTerm, setSearchTerm] = useState(filtros.buscar || "");
+  const [searchTerm, setSearchTerm] = useState(filtros.search || "");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   useEffect(() => {
     setFiltros((prev) =>
-      prev.buscar === debouncedSearchTerm
+      prev.search === debouncedSearchTerm
         ? prev
-        : { ...prev, buscar: debouncedSearchTerm }
+        : { ...prev, search: debouncedSearchTerm }
     );
   }, [debouncedSearchTerm]);
 
   useEffect(() => {
-    setSearchTerm(filtros.buscar || "");
-  }, [filtros.buscar]);
+    setSearchTerm(filtros.search || "");
+  }, [filtros.search]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["productos", pagina, filtros],

@@ -17,8 +17,7 @@ class CategoriaController extends Controller
 
     public function index(Request $request)
     {
-        $search = $request->query('search') ?? '';
-        $categorias = $this->categoriaService->listarCategoria($search);
+        $categorias = $this->categoriaService->listarCategoria($request);
         return response()->json($categorias);
     }
 
@@ -34,18 +33,18 @@ class CategoriaController extends Controller
         return response()->json($categoria, 201);
     }
 
-    public function show(string $id)
+    public function show(int $id)
     {
         $categoria = $this->categoriaService->obtenerPorId($id);
         return response()->json($categoria);
     }
-    public function update(CategoriaRequest $request, string $id)
+    public function update(CategoriaRequest $request, int $id)
     {
         $categoria = $this->categoriaService->actualizarCategoria($id, $request->validated());
         return response()->json($categoria);
     }
 
-    public function destroy(string $id)
+    public function destroy(int $id)
     {
         $this->categoriaService->eliminarCategoria($id);
         return response()->json(null, 204);

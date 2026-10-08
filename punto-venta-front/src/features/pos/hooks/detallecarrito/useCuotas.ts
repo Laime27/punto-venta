@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { type CuotaType } from "../../types/PosType";
+import { esNumeroDecimalValido } from "@/lib/utils";
 
 export function useCuotas() {
   const [cuotas, setCuotas] = useState<CuotaType[]>([]);
@@ -13,6 +14,9 @@ export function useCuotas() {
   };
 
   const actualizarCuota = (index: number, field: string, value: string) => {
+    if (field === 'monto' && !esNumeroDecimalValido(value)) {
+      return;
+    }
     const newCuotas = [...cuotas];
     newCuotas[index] = { ...newCuotas[index], [field]: value };
     setCuotas(newCuotas);
