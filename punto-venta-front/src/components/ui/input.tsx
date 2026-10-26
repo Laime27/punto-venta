@@ -1,18 +1,20 @@
+
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
 function Input({ className, type, onClick, ...props }: React.ComponentProps<"input">) {
   const handleClick = (e: React.MouseEvent<HTMLInputElement>) => {
-    if (type === "date" && 'showPicker' in HTMLInputElement.prototype) {
+    if (type === "date" && "showPicker" in HTMLInputElement.prototype) {
       try {
-        (e.target as HTMLInputElement).showPicker()
+        e.currentTarget.showPicker()
       } catch (error) {
       }
+    } else {
+      e.currentTarget.select()
     }
-    if (onClick) {
-      onClick(e)
-    }
+
+    onClick?.(e)
   }
 
   return (

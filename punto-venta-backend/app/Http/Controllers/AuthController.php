@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AuthRequest;
 use App\Services\AuthService;
 use Exception;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -30,20 +31,26 @@ class AuthController extends Controller
             ], 401);
         }
 
+    }
 
-        // return response()->json([
-        //     'user' => $response['user']
-        // ])->cookie(
-        //     'access_token',
-        //     $response['token'],
-        //     60 * 24, 
-        //     '/',
-        //     null,
-        //     app()->environment('production'),
-        //     true,
-        //     false,
-        //     'Lax'
-        // );
+    public function me(Request $request)
+    {
+        return response()->json([
+            'user' => $request->user()
+        ], 200);
+    }
 
+    public function logout(Request $request)
+    {
+        try {
+            $this->authService->logoutService($request->user());
+            return response()->json([
+                'message' => 'Sesión cerrada exitosamente'
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }

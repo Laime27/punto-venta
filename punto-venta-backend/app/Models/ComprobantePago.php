@@ -18,6 +18,11 @@ class ComprobantePago extends Model
         return $this->belongsTo(Comprobante::class);
     }
 
+    public function caja()
+    {
+        return $this->belongsTo(Caja::class);
+    }
+
     public function metodoPago()
     {
         return $this->belongsTo(MetodoPago::class, 'metodo_pago_id');

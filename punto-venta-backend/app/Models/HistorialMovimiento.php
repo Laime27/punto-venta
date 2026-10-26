@@ -13,8 +13,6 @@ class HistorialMovimiento extends Model
     protected $table = 'historial_movimientos';
     protected $guarded = [];
 
-   
-
     protected $appends = ['nombre_documento'];
 
     public function getNombreDocumentoAttribute()

@@ -1,5 +1,5 @@
 import axiosLib from "axios";
-import { getToken } from "@/lib/cookie";
+import { getToken, removeToken } from "@/lib/cookie";
 
 const axios = axiosLib.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -13,5 +13,18 @@ axios.interceptors.request.use((config) => {
   }
   return config;
 });
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401) {
+      removeToken();
+      if (window.location.pathname !== "/") {
+        window.location.href = "/";
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default axios;

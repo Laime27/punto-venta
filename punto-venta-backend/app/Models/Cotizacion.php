@@ -28,6 +28,7 @@ class Cotizacion extends Model
         'total',
         'observaciones',
         'user_id',
+        'comprobante_id',
     ];
 
     protected $casts = [
@@ -44,6 +45,12 @@ class Cotizacion extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+
+    public function comprobante()
+    {
+        return $this->belongsTo(Comprobante::class);
     }
 
     public function detalles()

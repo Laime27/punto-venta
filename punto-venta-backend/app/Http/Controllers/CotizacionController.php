@@ -55,6 +55,11 @@ class CotizacionController extends Controller
         return response()->json($cotizacion, 200);
     }
 
+    public function paraVenta($id)
+    {
+        return response()->json($this->cotizacionService->prepararParaVenta((int) $id));
+    }
+
     public function generarPdf($id)
     {
         $cotizacion = $this->cotizacionService->mostrar($id);

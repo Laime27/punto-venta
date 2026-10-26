@@ -43,4 +43,9 @@ class Comprobante extends Model
         return $this->hasMany(ComprobantePago::class);
     }
 
+    public function creditos()
+    {
+        return $this->hasMany(ComprobanteCredito::class)->orderBy('fecha')->orderBy('id');
+    }
+
 }

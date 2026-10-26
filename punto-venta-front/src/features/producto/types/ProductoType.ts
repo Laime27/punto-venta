@@ -37,3 +37,15 @@ export interface FiltrosProductosType {
   search?: string;
   // disponibilidad?: "todos" | "disponible" | "no_disponible";
 }
+
+export interface ErrorFilaExcelType {
+  fila: number;
+  campo: string;
+  errores: string[];
+  valores?: Record<string, unknown>;
+}
+
+export interface ErrorImportacionType {
+  mensaje: string;
+  errores?: ErrorFilaExcelType[];
+}

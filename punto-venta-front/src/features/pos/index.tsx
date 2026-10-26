@@ -1,16 +1,20 @@
 import { useState } from "react";
 import { POSCarritoTabla } from "./components/carrito/POSCarritoTabla";
 import { POSResumen } from "./components/detallecarrito/POSResumen";
-import { PosProveedor } from "./context/PosContexto";
+import { PosProveedor } from "./context/PosProveedor";
 import { ShoppingCart, CreditCard } from "lucide-react";
+import { usePosHook } from "./hooks/detallecarrito/PosHook";
+import { POSCajaCerradaAviso } from "./components/detallecarrito/POSCajaCerradaAviso";
 
 export default function POS() {
   const [vistaActiva, setVistaActiva] = useState<"carrito" | "pago">("carrito");
+  const { cajaActiva, cargandoCaja, irACaja } = usePosHook();
 
   return (
     <PosProveedor>
+      <POSCajaCerradaAviso abierto={!cargandoCaja && !cajaActiva} onIrACaja={irACaja} />
       <div className="flex flex-col h-[calc(100vh-3.5rem)] p-2 lg:p-3 xl:p-4 pt-2 gap-2 xl:gap-4 overflow-hidden">
-        
+
         <div className="xl:hidden flex bg-muted/50 rounded-xl p-1 w-full border shrink-0">
           <button
             onClick={() => setVistaActiva("carrito")}

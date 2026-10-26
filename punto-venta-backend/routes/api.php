@@ -13,6 +13,9 @@ use App\Http\Controllers\ComprobanteController;
 use App\Http\Controllers\HistorialMovimientoController;
 use App\Http\Controllers\OrdenCompraController;
 use App\Http\Controllers\CotizacionController;
+use App\Http\Controllers\CajaController;
+use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\ImpresoraController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -21,7 +24,12 @@ Route::get('/user', function (Request $request) {
 
 Route::post('auth/login', [AuthController::class, 'login']);
 
+Route::get('producto/plantilla', [ProductoController::class, 'descargarPlantilla']);
+
 Route::group(['middleware' => 'auth:sanctum'], function () {
+    Route::get('auth/me', [AuthController::class, 'me']);
+    Route::post('auth/logout', [AuthController::class, 'logout']);
+
     Route::get('categoria/listar-select', [CategoriaController::class, 'listarSelect']);
     Route::apiResource('categoria', CategoriaController::class);
 
@@ -42,7 +50,12 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::patch('metodo-pago/{id}/estado', [MetodoPagoController::class, 'cambiarEstado']);
     Route::apiResource('metodo-pago', MetodoPagoController::class)->except(['destroy']);
 
+    Route::get('comprobante', [ComprobanteController::class, 'index']);
+    Route::get('comprobante/{id}/ticket', [ComprobanteController::class, 'ticket']);
+    Route::get('comprobante/{id}', [ComprobanteController::class, 'show']);
     Route::post('comprobante/registrar-venta', [ComprobanteController::class, 'registrarVenta']);
+    Route::post('comprobante/{id}/anular', [ComprobanteController::class, 'anular']);
+    Route::post('comprobante/credito/{id}/abonar', [ComprobanteController::class, 'abonarCredito']);
     
     Route::get('historial-movimiento', [HistorialMovimientoController::class, 'index']);
     
@@ -51,5 +64,28 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::patch('cotizacion/{id}/estado', [CotizacionController::class, 'cambiarEstado']);
     Route::get('cotizacion/{id}/pdf', [CotizacionController::class, 'generarPdf']);
+    Route::get('cotizacion/{id}/para-venta', [CotizacionController::class, 'paraVenta']);
     Route::apiResource('cotizacion', CotizacionController::class);
+
+    Route::get('caja', [CajaController::class, 'index']);
+    Route::get('caja/estado-actual', [CajaController::class, 'estadoActual']);
+    Route::post('caja/abrir', [CajaController::class, 'abrir']);
+    Route::post('caja/{id}/cerrar', [CajaController::class, 'cerrar']);
+    Route::get('caja/{id}/resumen', [CajaController::class, 'resumen']);
+    Route::post('caja/movimientos', [CajaController::class, 'registrarMovimiento']);
+    Route::get('caja/{id}/movimientos', [CajaController::class, 'listarMovimientos']);
+    Route::get('caja/{id}', [CajaController::class, 'show']);
+
+    Route::get('empresa/zonas-horarias', [EmpresaController::class, 'zonasHorarias']);
+    Route::get('empresa', [EmpresaController::class, 'show']);
+    Route::post('empresa', [EmpresaController::class, 'update']);
+
+    Route::get('impresora/ticket-prueba',[ImpresoraController::class, 'ticketPrueba']);
+    Route::get('impresora', [ImpresoraController::class, 'show']);
+    Route::post('impresora', [ImpresoraController::class, 'update']);
+
+
+
+
+    
 });

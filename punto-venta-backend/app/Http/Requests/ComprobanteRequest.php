@@ -20,6 +20,7 @@ class ComprobanteRequest extends FormRequest
         return [
             'codigo_unico' => 'nullable|string',
             'cliente_id' => 'nullable|exists:clientes,id',
+            'cotizacion_id' => 'nullable|exists:cotizaciones,id',
             'carrito' => 'required|array|min:1',
             'carrito.*.producto_id' => 'required|exists:productos,id',
             'carrito.*.cantidad' => 'required|numeric|min:0.01',

@@ -4,7 +4,6 @@ import {
   Bell,
   MessageSquare,
   Moon,
-  Settings,
   Sun,
   User,
 } from "lucide-react";
@@ -16,21 +15,14 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { useSidebar } from "@/components/ui/sidebar";
-import { useTheme } from "@/components/theme-provider";
+import { useDashboardHeader } from "./hooks/useDashboardHeader";
 
 function DashboardHeader() {
-  const { toggleSidebar } = useSidebar();
-  const { theme, setTheme } = useTheme();
+  const { theme, toggleSidebar, cambiarTema, cerrarSesion } = useDashboardHeader();
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
-  
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-2 sm:gap-4 border-b bg-background px-2 sm:px-4 lg:px-6">
       <Button variant="ghost" size="icon" onClick={toggleSidebar} className="shrink-0">
@@ -46,7 +38,7 @@ function DashboardHeader() {
           <MessageSquare className="h-5 w-5" />
         </Button>
 
-        <Button variant="ghost" size="icon" onClick={toggleTheme}>
+        <Button variant="ghost" size="icon" onClick={cambiarTema}>
           {theme === "dark" ? (
             <Sun className="h-5 w-5" />
           ) : (
@@ -66,16 +58,11 @@ function DashboardHeader() {
           <DropdownMenuContent align="end">
             <DropdownMenuItem>
               <User className="mr-2 h-4 w-4" />
-              <span>Profile</span>
+              <span>Perfil</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={cerrarSesion} className="cursor-pointer text-destructive focus:text-destructive">
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
+              <span>Cerrar sesión</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

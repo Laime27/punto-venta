@@ -33,4 +33,9 @@ class Caja extends Model
         return $this->hasMany(Comprobante::class);
     }
 
+    public function pagos()
+    {
+        return $this->hasMany(ComprobantePago::class);
+    }
+
 }

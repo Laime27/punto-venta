@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { ProductoType } from "../types/ProductoType"
 import { formatearMoneda } from "@/lib/utils"
-import { SIMBOLO_MONEDA } from "@/lib/constants"
+import { useMonedaHook } from "@/features/empresa/hooks/useMonedaHook"
 
 interface ProductoTableBodyProps {
   isLoading: boolean
@@ -19,6 +19,7 @@ export function ProductoTableBody({
   onEdit,
   onDelete,
 }: ProductoTableBodyProps) {
+  const { simbolo } = useMonedaHook()
   if (isLoading) {
     return (
       <TableBody>
@@ -70,13 +71,13 @@ export function ProductoTableBody({
             {producto.categoria?.nombre ?? ""}
           </TableCell>
           <TableCell className="font-medium">
-            {SIMBOLO_MONEDA} {formatearMoneda(producto.precio_compra)}
+            {simbolo} {formatearMoneda(producto.precio_compra)}
           </TableCell>
           <TableCell className="font-medium">
-            {SIMBOLO_MONEDA} {formatearMoneda(producto.precio_mayoreo)}
+            {simbolo} {formatearMoneda(producto.precio_mayoreo)}
           </TableCell>
           <TableCell className="font-medium">
-            {SIMBOLO_MONEDA} {formatearMoneda(producto.precio_venta)}
+            {simbolo} {formatearMoneda(producto.precio_venta)}
           </TableCell>
           <TableCell>
             {producto.stock}

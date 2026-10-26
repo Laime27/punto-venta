@@ -3,9 +3,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Package, DollarSign } from "lucide-react";
 import type { StatsType } from "../types/ProductoType";
 import { formatearMoneda } from "@/lib/utils";
-import { SIMBOLO_MONEDA } from "@/lib/constants";
+import { useMonedaHook } from "@/features/empresa/hooks/useMonedaHook";
 
 export function ProductoCarts() {
+  const { simbolo } = useMonedaHook();
   const { datos } = useProductoHook();
   const stats: StatsType = datos.stats;
 
@@ -22,7 +23,7 @@ export function ProductoCarts() {
             </div>
           </div>
           <div className="flex items-baseline">
-            <span className="text-xl text-muted-foreground mr-1">{SIMBOLO_MONEDA}</span>
+            <span className="text-xl text-muted-foreground mr-1">{simbolo}</span>
             <span className="text-3xl text-foreground tracking-tight">
               {formatearMoneda(stats?.total_costo)}
             </span>
@@ -45,7 +46,7 @@ export function ProductoCarts() {
             </div>
           </div>
           <div className="flex items-baseline">
-            <span className="text-xl text-muted-foreground mr-1">{SIMBOLO_MONEDA}</span>
+            <span className="text-xl text-muted-foreground mr-1">{simbolo}</span>
             <span className="text-3xl text-foreground tracking-tight">
               {formatearMoneda(stats?.total_venta)}
             </span>
@@ -65,7 +66,7 @@ export function ProductoCarts() {
             </p>
           </div>
           <div className="flex items-baseline">
-            <span className="text-xl text-muted-foreground mr-1">{SIMBOLO_MONEDA}</span>
+            <span className="text-xl text-muted-foreground mr-1">{simbolo}</span>
             <span className="text-3xl text-foreground tracking-tight">
               {formatearMoneda(stats?.utilidad_proyectada)}
             </span>

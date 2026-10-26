@@ -5,7 +5,7 @@ export const AuthSchema = z.object({
     .string()
     .min(1, "El correo es obligatorio")
     .email("Debe ser un correo válido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+  password: z.string().min(1, "La contraseña es obligatoria"),
 });
 
 export type AuthFormData = z.infer<typeof AuthSchema>;

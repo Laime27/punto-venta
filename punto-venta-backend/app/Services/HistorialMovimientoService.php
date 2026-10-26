@@ -8,12 +8,12 @@ class HistorialMovimientoService
 {
     public function ListarHistorialMovimientos($perPage = 10)
     {
-        return HistorialMovimiento::with([
-            'producto:id,nombre,codigo_barras',
-            'user:id,name',
-            'tipoMovimiento:id,nombre',
-            'documento:id,serie,correlativo'
-        ])
+            return HistorialMovimiento::with([
+                'producto:id,nombre,codigo_barras',
+                'user:id,name',
+                'tipoMovimiento:id,nombre',
+                'documento:id,serie,correlativo'
+            ])
             ->select([
                 'id',
                 'producto_id',

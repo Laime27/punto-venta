@@ -1,8 +1,8 @@
-import { LayoutDashboard, Tags, Package, Settings, Truck, Users, CreditCard, Activity, ShoppingCart } from "lucide-react";
+import { LayoutDashboard, Tags, Package, Settings, Truck, Users, CreditCard, Activity, ShoppingCart, Receipt, Vault, Building2, Printer, type LucideIcon } from "lucide-react";
 
 export interface MenuItemsProps {
   label: string;
-  icon: any;
+  icon: LucideIcon;
   url: string;
 }
 
@@ -56,6 +56,16 @@ export const menuGroups: MenuGroup[] = [
     label: "Administración",
     items: [
       {
+        label: "Caja",
+        icon: Vault,
+        url: "/caja",
+      },
+      {
+        label: "Comprobantes",
+        icon: Receipt,
+        url: "/comprobante",
+      },
+      {
         label: "Órdenes de Compra",
         icon: ShoppingCart,
         url: "/orden-compra",
@@ -74,6 +84,16 @@ export const menuGroups: MenuGroup[] = [
         label: "Métodos de Pago",
         icon: CreditCard,
         url: "/metodos-pago",
+      },
+      {
+        label: "Empresa",
+        icon: Building2,
+        url: "/empresa",
+      },
+      {
+        label: "Impresora",
+        icon: Printer,
+        url: "/impresora",
       },
     ],
   },

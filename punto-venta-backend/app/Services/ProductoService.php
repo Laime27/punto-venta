@@ -2,7 +2,15 @@
 
 namespace App\Services;
 
+use App\Enums\TipoMovimientoEnum;
+use App\Models\HistorialMovimiento;
 use App\Models\Producto;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\UploadedFile;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException as ExcelValidationException;
+use App\Imports\ProductoImport;
 
 class ProductoService
 {
@@ -46,7 +54,7 @@ class ProductoService
         }
 
         if ($request->search) {
-            $query->where('nombre', 'like', "%{$request->search}%");
+            $query->where('nombre', 'like', "%{$request->search}%")->orWhere('codigo_barras', 'like', "%{$request->search}%");
         }
 
         $productos = $query->orderBy('id', 'desc')->paginate(10);
@@ -72,11 +80,17 @@ class ProductoService
         $proveedores = $datos['proveedores'] ?? [];
         unset($datos['proveedores']);
 
-        $producto = Producto::create($datos);
+        $producto = DB::transaction(function () use ($datos, $proveedores) {
+            $producto = Producto::create($datos);
 
-        if (!empty($proveedores)) {
-            $producto->proveedores()->sync($proveedores);
-        }
+            $this->registrarCambioStock($producto, 0, (float) ($datos['stock'] ?? 0), TipoMovimientoEnum::ARTICULO_CREADO, 'Stock inicial al crear el producto');
+
+            if (!empty($proveedores)) {
+                $producto->proveedores()->sync($proveedores);
+            }
+
+            return $producto;
+        });
 
         return $producto->load(['categoria', 'unidad', 'proveedores']);
     }
@@ -97,18 +111,74 @@ class ProductoService
         $proveedores = $datos['proveedores'] ?? null;
         unset($datos['proveedores']);
 
-        $producto->update($datos);
+        DB::transaction(function () use ($producto, $datos, $proveedores) {
+            $stockAnterior = (float) Producto::whereKey($producto->id)->lockForUpdate()->value('stock');
 
-        if ($proveedores !== null) {
-            $producto->proveedores()->sync($proveedores);
-        }
+            $producto->update($datos);
+
+            if (array_key_exists('stock', $datos) && $datos['stock'] !== null) {
+                $this->registrarCambioStock($producto, $stockAnterior, (float) $datos['stock'], TipoMovimientoEnum::ARTICULO_EDITADO, 'Stock modificado al editar el producto');
+            }
+
+            if ($proveedores !== null) {
+                $producto->proveedores()->sync($proveedores);
+            }
+        });
 
         return $producto->load(['categoria', 'unidad', 'proveedores']);
+    }
+
+    private function registrarCambioStock(Producto $producto, float $stockAnterior, float $stockNuevo, TipoMovimientoEnum $tipo, string $observacion): void
+    {
+        $diferencia = round($stockNuevo - $stockAnterior, 2);
+
+        if ($diferencia == 0) return;
+
+        HistorialMovimiento::create([
+            'producto_id' => $producto->id,
+            'user_id' => Auth::id() ?? 1,
+            'tipo_movimiento_id' => $tipo->value,
+            'operacion' => $diferencia > 0 ? '+' : '-',
+            'cantidad' => abs($diferencia),
+            'stock_anterior' => $stockAnterior,
+            'stock_actual' => $stockNuevo,
+            'observacion' => $observacion,
+            'fecha_emision' => now(),
+        ]);
     }
 
     public function eliminarProducto(int $id): void
     {
         Producto::findOrFail($id)->delete();
     }
-    
+
+    public function importarProductos(UploadedFile $archivo, int $userId): array
+    {
+        try {
+            DB::transaction(function () use ($archivo, $userId) {
+                Excel::import(new ProductoImport($userId), $archivo);
+            });
+
+            return [
+                'exito'   => true,
+                'mensaje' => 'Productos importados correctamente',
+            ];
+        } catch (ExcelValidationException $e) {
+            $errores = [];
+            foreach ($e->failures() as $failure) {
+                $errores[] = [
+                    'fila'    => $failure->row(),
+                    'campo'   => $failure->attribute(),
+                    'errores' => $failure->errors(),
+                    'valores' => $failure->values(),
+                ];
+            }
+
+            return [
+                'exito'   => false,
+                'mensaje' => 'No se importó ningún producto debido a errores en el archivo. Corrija los errores e intente nuevamente.',
+                'errores' => $errores,
+            ];
+        }
+    }
 }

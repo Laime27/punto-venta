@@ -114,6 +114,7 @@ class DummyDataSeeder extends Seeder
                 'descuento' => 0,
                 'total' => $total,
                 'estado' => 'pagado',
+                'fecha_emision' => $fecha,
                 'created_at' => $fecha,
                 'updated_at' => $fecha,
             ];

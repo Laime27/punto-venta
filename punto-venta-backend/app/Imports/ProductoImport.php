@@ -11,8 +11,10 @@ use App\Enums\TipoMovimientoEnum;
 use Illuminate\Database\Eloquent\Model;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 
-class ProductoImport implements ToModel, WithHeadingRow
+class ProductoImport implements ToModel, WithHeadingRow, WithValidation, SkipsEmptyRows
 {
     protected $userId;
 
@@ -23,22 +25,69 @@ class ProductoImport implements ToModel, WithHeadingRow
 
     public function model(array $row): Model|array|null
     {
-        if (!isset($row['nombre']) || !isset($row['precio_venta'])) {
-            return null;
-        }
-
         $categoriaId = $this->obtenerCategoriaId($row);
         $unidadId = $this->obtenerUnidadId($row);
         
         $productoExistente = $this->obtenerProductoExistente($row);
-        $stockAnterior = $productoExistente ? $productoExistente->stock : 0;
-        $stockNuevo = $row['stock'] ?? 0;
+        $stockAnterior = $productoExistente ? (float)$productoExistente->stock : 0;
+        $stockNuevo = isset($row['stock']) && is_numeric($row['stock']) ? (float)$row['stock'] : 0;
 
         $producto = $this->guardarProducto($row, $categoriaId, $unidadId, $stockNuevo);
 
         $this->registrarHistorial($producto, $stockAnterior, $stockNuevo, $productoExistente);
 
         return $producto;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'nombre'           => ['required', 'string', 'max:255'],
+            'precio_venta'     => ['required', 'numeric', 'min:0'],
+            'precio_compra'    => ['nullable', 'numeric', 'min:0'],
+            'precio_mayoreo'   => ['nullable', 'numeric', 'min:0'],
+            'stock'            => ['nullable', 'numeric', 'min:0'],
+            'stock_minimo'     => ['nullable', 'numeric', 'min:0'],
+            'codigo_barras'    => ['nullable'],
+            'categoria'        => ['nullable', 'string', 'max:255'],
+            'unidad'           => ['nullable', 'string', 'max:255'],
+            'disponible_venta' => ['nullable'],
+        ];
+    }
+
+    public function customValidationMessages(): array
+    {
+        return [
+            'nombre.required'        => 'El nombre del producto es obligatorio.',
+            'nombre.string'          => 'El nombre del producto debe ser texto.',
+            'nombre.max'             => 'El nombre no debe superar los 255 caracteres.',
+            'precio_venta.required'  => 'El precio de venta es obligatorio.',
+            'precio_venta.numeric'   => 'El precio de venta debe ser un número válido.',
+            'precio_venta.min'       => 'El precio de venta no puede ser negativo.',
+            'precio_compra.numeric'  => 'El precio de compra debe ser un número válido.',
+            'precio_compra.min'      => 'El precio de compra no puede ser negativo.',
+            'precio_mayoreo.numeric' => 'El precio de mayoreo debe ser un número válido.',
+            'precio_mayoreo.min'     => 'El precio de mayoreo no puede ser negativo.',
+            'stock.numeric'          => 'El stock debe ser un número válido.',
+            'stock.min'              => 'El stock no puede ser negativo.',
+            'stock_minimo.numeric'   => 'El stock mínimo debe ser un número válido.',
+            'stock_minimo.min'       => 'El stock mínimo no puede ser negativo.',
+        ];
+    }
+
+    public function customValidationAttributes(): array
+    {
+        return [
+            'nombre'         => 'nombre',
+            'precio_venta'   => 'precio de venta',
+            'precio_compra'  => 'precio de compra',
+            'precio_mayoreo' => 'precio de mayoreo',
+            'stock'          => 'stock',
+            'stock_minimo'   => 'stock mínimo',
+            'codigo_barras'  => 'código de barras',
+            'categoria'      => 'categoría',
+            'unidad'         => 'unidad',
+        ];
     }
 
     private function obtenerCategoriaId(array $row): ?int
@@ -71,7 +120,7 @@ class ProductoImport implements ToModel, WithHeadingRow
         return $query->first();
     }
 
-    private function guardarProducto(array $row, ?int $categoriaId, int $unidadId, int $stockNuevo): Producto
+    private function guardarProducto(array $row, ?int $categoriaId, int $unidadId, float|int $stockNuevo): Producto
     {
         $matchAtributos = !empty($row['codigo_barras']) 
             ? ['codigo_barras' => $row['codigo_barras']] 
@@ -94,7 +143,7 @@ class ProductoImport implements ToModel, WithHeadingRow
         );
     }
 
-    private function registrarHistorial(Producto $producto, int $stockAnterior, int $stockNuevo, ?Producto $productoExistente): void
+    private function registrarHistorial(Producto $producto, float|int $stockAnterior, float|int $stockNuevo, ?Producto $productoExistente): void
     {
         if (!$productoExistente || $stockAnterior != $stockNuevo) {
             $operacion = $stockNuevo >= $stockAnterior ? '+' : '-';
