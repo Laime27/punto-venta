@@ -8,6 +8,7 @@ use App\Models\Unidad;
 use App\Models\HistorialMovimiento;
 use App\Models\User;
 use App\Enums\TipoMovimientoEnum;
+use App\Services\CodigoBarrasService;
 use Illuminate\Database\Eloquent\Model;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -126,7 +127,7 @@ class ProductoImport implements ToModel, WithHeadingRow, WithValidation, SkipsEm
             ? ['codigo_barras' => $row['codigo_barras']] 
             : ['nombre' => $row['nombre']];
 
-        return Producto::updateOrCreate(
+        $producto = Producto::updateOrCreate(
             $matchAtributos,
             [
                 'nombre'           => $row['nombre'],
@@ -141,6 +142,12 @@ class ProductoImport implements ToModel, WithHeadingRow, WithValidation, SkipsEm
                 'disponible_venta' => isset($row['disponible_venta']) ? (bool)$row['disponible_venta'] : true,
             ]
         );
+
+        if (blank($producto->codigo_barras)) {
+            $producto->update(['codigo_barras' => app(CodigoBarrasService::class)->generar($producto->id)]);
+        }
+
+        return $producto;
     }
 
     private function registrarHistorial(Producto $producto, float|int $stockAnterior, float|int $stockNuevo, ?Producto $productoExistente): void

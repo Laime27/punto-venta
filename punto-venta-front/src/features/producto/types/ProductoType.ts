@@ -48,4 +48,35 @@ export interface ErrorFilaExcelType {
 export interface ErrorImportacionType {
   mensaje: string;
   errores?: ErrorFilaExcelType[];
+  filas?: FilaExcelType[];
+}
+
+export const CAMPOS_IMPORTACION = [
+  "nombre",
+  "descripcion",
+  "precio_compra",
+  "precio_venta",
+  "precio_mayoreo",
+  "stock",
+  "stock_minimo",
+  "codigo_barras",
+  "categoria",
+  "unidad",
+  "disponible_venta",
+] as const;
+
+export type CampoImportacionType = (typeof CAMPOS_IMPORTACION)[number];
+
+export type ValorCeldaExcelType = string | number | boolean | null;
+
+// Fila tal como la devuelve el backend al leer el Excel
+export type FilaExcelType = { fila: number } & Partial<Record<CampoImportacionType, ValorCeldaExcelType>>;
+
+// Fila corregida que se envía al backend para importar
+export type FilaImportacionPayloadType = { fila: number } & Record<CampoImportacionType, string | null>;
+
+export interface ColumnaImportacionType {
+  campo: CampoImportacionType;
+  etiqueta: string;
+  ancho: string;
 }

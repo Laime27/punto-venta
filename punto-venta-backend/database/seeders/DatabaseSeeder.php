@@ -104,6 +104,20 @@ class DatabaseSeeder extends Seeder
                 'correlativo' => '0',
                 'activo' => true,
             ],
+            [
+                'nombre' => 'AJUSTE DE INVENTARIO',
+                'codigo_sunat' => 'AI',
+                'serie' => 'AJ01',
+                'correlativo' => '0',
+                'activo' => true,
+            ],
+            [
+                'nombre' => 'AJUSTE DE INVENTARIO',
+                'codigo_sunat' => 'AI',
+                'serie' => 'AJ01',
+                'correlativo' => '0',
+                'activo' => true,
+            ]
         ];
 
         if (DB::table('tipos_comprobantes')->count() === 0) {

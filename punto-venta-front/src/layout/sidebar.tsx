@@ -1,6 +1,7 @@
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -9,68 +10,83 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  SidebarSeparator,
 } from "@/components/ui/sidebar"
 
-import { Layers } from "lucide-react"
+import { Store } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
-import { menuGroups, puntoVentaItem, type MenuItemsProps } from "./sidebarItems"
+import { configItems, dashboardItem, menuGroups, puntoVentaItem, type MenuItemsProps } from "./sidebarItems"
+
+const itemClass =
+  "relative h-9 rounded-lg text-sidebar-foreground transition-colors focus-visible:ring-sidebar-ring/40 " +
+  "data-active:bg-sidebar-primary/12 data-active:text-sidebar-primary " +
+  "data-active:before:absolute data-active:before:left-0 data-active:before:inset-y-2 data-active:before:w-[3px] data-active:before:rounded-r-full data-active:before:bg-sidebar-primary"
+
+const groupLabelClass = "text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/45"
 
 function DashboardSidebar() {
   const location = useLocation()
 
-  const renderMenuItems = (items: MenuItemsProps[]) => (
-    <SidebarMenu>
-      {items.map((item) => {
-        const isActive = location.pathname === item.url
-        return (
-          <SidebarMenuItem key={item.url}>
-            <SidebarMenuButton
-              asChild
-              className={`transition-colors ${
-                isActive
-                  ? "bg-blue-700 text-white hover:bg-blue-800 hover:text-white"
-                  : ""
-              }`}
-            >
-              <Link to={item.url}>
-                <item.icon className="h-4 w-4" />
-                <span>{item.label}</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        )
-      })}
-    </SidebarMenu>
+  const isActive = (url: string) =>
+    location.pathname === url || location.pathname.startsWith(`${url}/`)
+
+  const renderItem = (item: MenuItemsProps) => (
+    <SidebarMenuItem key={item.url}>
+      <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.label} className={itemClass}>
+        <Link to={item.url}>
+          <item.icon />
+          <span>{item.label}</span>
+        </Link>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
   )
 
   return (
-    <Sidebar className="border-r">
-    <SidebarHeader className="border-b border-sidebar-border">
-
-        <div className="flex h-14 items-center px-4">
-          <Layers className="mr-2 h-6 w-6" />
-          <span className="text-lg font-semibold">Dashboard</span>
+    <Sidebar collapsible="icon" className="border-r-0">
+      <SidebarHeader>
+        <div className="flex h-12 items-center justify-center gap-3 px-1">
+            <span className="truncate text-lg font-semibold text-center text-sidebar-accent-foreground">Punto de Venta</span>
         </div>
+
+        <SidebarMenu className="mt-2">
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              tooltip={puntoVentaItem.label}
+              className="h-10 justify-center rounded-lg bg-sidebar-primary font-semibold text-sidebar-primary-foreground shadow-md shadow-sidebar-primary/20 hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground active:bg-sidebar-primary/80 active:text-sidebar-primary-foreground"
+            >
+              <Link to={puntoVentaItem.url}>
+                <puntoVentaItem.icon />
+                <span>{puntoVentaItem.label}</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Punto de Venta</SidebarGroupLabel>
           <SidebarGroupContent>
-            {renderMenuItems(puntoVentaItem)}
+            <SidebarMenu>{renderItem(dashboardItem)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
         {menuGroups.map((group) => (
-          <SidebarGroup key={group.label}>
-            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+          <SidebarGroup key={group.label} className="py-1">
+            <SidebarGroupLabel className={groupLabelClass}>{group.label}</SidebarGroupLabel>
             <SidebarGroupContent>
-              {renderMenuItems(group.items)}
+              <SidebarMenu>{group.items.map(renderItem)}</SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
-        
       </SidebarContent>
+
+      <SidebarSeparator className="mx-0" />
+
+      <SidebarFooter>
+        <SidebarGroupLabel className={groupLabelClass}>Configuración</SidebarGroupLabel>
+        <SidebarMenu>{configItems.map(renderItem)}</SidebarMenu>
+      </SidebarFooter>
 
       <SidebarRail />
     </Sidebar>

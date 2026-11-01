@@ -1,4 +1,4 @@
-import { LayoutDashboard, Tags, Package, Settings, Truck, Users, CreditCard, Activity, ShoppingCart, Receipt, Vault, Building2, Printer, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, Tags, Package, Truck, Users, CreditCard, ArrowLeftRight, ShoppingCart, Receipt, Vault, Building2, Printer, FileText, ScanBarcode, ClipboardCheck, type LucideIcon } from "lucide-react";
 
 export interface MenuItemsProps {
   label: string;
@@ -11,49 +11,22 @@ export interface MenuGroup {
   items: MenuItemsProps[];
 }
 
+// Acción principal: abrir la pantalla de venta
+export const puntoVentaItem: MenuItemsProps = {
+  label: "Nueva venta",
+  icon: ScanBarcode,
+  url: "/punto-venta",
+};
+
+export const dashboardItem: MenuItemsProps = {
+  label: "Dashboard",
+  icon: LayoutDashboard,
+  url: "/dashboard",
+};
+
 export const menuGroups: MenuGroup[] = [
   {
-    label: "General",
-    items: [
-      {
-        label: "Dashboard",
-        icon: LayoutDashboard,
-        url: "/dashboard",
-      },
-    ],
-  },
-  {
-    label: "Inventario",
-    items: [
-      {
-        label: "Categorias",
-        icon: Tags,
-        url: "/categoria",
-      },
-      {
-        label: "Productos",
-        icon: Package,
-        url: "/producto",
-      },
-    ],
-  },
-  {
-    label: "Contactos",
-    items: [
-      {
-        label: "Clientes",
-        icon: Users,
-        url: "/cliente",
-      },
-      {
-        label: "Proveedores",
-        icon: Truck,
-        url: "/proveedor",
-      },
-    ],
-  },
-  {
-    label: "Administración",
+    label: "Ventas",
     items: [
       {
         label: "Caja",
@@ -66,43 +39,73 @@ export const menuGroups: MenuGroup[] = [
         url: "/comprobante",
       },
       {
+        label: "Cotizaciones",
+        icon: FileText,
+        url: "/cotizacion",
+      },
+      {
+        label: "Clientes",
+        icon: Users,
+        url: "/cliente",
+      },
+    ],
+  },
+  {
+    label: "Inventario",
+    items: [
+      {
+        label: "Productos",
+        icon: Package,
+        url: "/producto",
+      },
+      {
+        label: "Categorías",
+        icon: Tags,
+        url: "/categoria",
+      },
+      {
+        label: "Ajustes de Inventario",
+        icon: ClipboardCheck,
+        url: "/ajuste-inventario",
+      },
+      {
+        label: "Movimientos",
+        icon: ArrowLeftRight,
+        url: "/historial-movimiento",
+      },
+    ],
+  },
+  {
+    label: "Compras",
+    items: [
+      {
         label: "Órdenes de Compra",
         icon: ShoppingCart,
         url: "/orden-compra",
       },
       {
-        label: "Cotizaciones",
-        icon: ShoppingCart,
-        url: "/cotizacion",
-      },
-      {
-        label: "Historial Movimientos",
-        icon: Activity,
-        url: "/historial-movimiento",
-      },
-      {
-        label: "Métodos de Pago",
-        icon: CreditCard,
-        url: "/metodos-pago",
-      },
-      {
-        label: "Empresa",
-        icon: Building2,
-        url: "/empresa",
-      },
-      {
-        label: "Impresora",
-        icon: Printer,
-        url: "/impresora",
+        label: "Proveedores",
+        icon: Truck,
+        url: "/proveedor",
       },
     ],
   },
 ];
 
-export const puntoVentaItem: MenuItemsProps[] = [
+export const configItems: MenuItemsProps[] = [
   {
-    label: "Punto de Venta",
-    icon: Settings,
-    url: "/punto-venta",
+    label: "Empresa",
+    icon: Building2,
+    url: "/empresa",
+  },
+  {
+    label: "Métodos de Pago",
+    icon: CreditCard,
+    url: "/metodos-pago",
+  },
+  {
+    label: "Impresora",
+    icon: Printer,
+    url: "/impresora",
   },
 ];

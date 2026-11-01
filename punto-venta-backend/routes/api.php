@@ -16,6 +16,7 @@ use App\Http\Controllers\CotizacionController;
 use App\Http\Controllers\CajaController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\ImpresoraController;
+use App\Http\Controllers\AjusteInventarioController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -34,8 +35,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::apiResource('categoria', CategoriaController::class);
 
     Route::get('producto/listar-select', [ProductoController::class, 'listarSelect']);
+    Route::get('producto/generar-codigo', [ProductoController::class, 'generarCodigo']);
     Route::get('producto/exportar', [ProductoController::class, 'exportar']);
     Route::post('producto/importar', [ProductoController::class, 'importar']);
+    Route::post('producto/importar-filas', [ProductoController::class, 'importarFilas']);
     Route::apiResource('producto', ProductoController::class);
 
     Route::get('unidad', [UnidadController::class, 'index']);
@@ -58,6 +61,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('comprobante/credito/{id}/abonar', [ComprobanteController::class, 'abonarCredito']);
     
     Route::get('historial-movimiento', [HistorialMovimientoController::class, 'index']);
+
+    Route::apiResource('ajuste-inventario', AjusteInventarioController::class)->only(['index', 'store', 'show']);
     
     Route::post('orden-compra/{id}/recibir', [OrdenCompraController::class, 'recibir']);
     Route::apiResource('orden-compra', OrdenCompraController::class);

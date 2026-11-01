@@ -11,6 +11,7 @@ import {
 import {
   obtenerProducto,
   crearProducto,
+  generarCodigoBarras,
   actualizarProducto,
 } from "../services/ProductoService"
 import { listarUnidades } from "@/features/unidad/services/UnidadService"
@@ -94,6 +95,14 @@ export const useProductoFormHook = () => {
       toast.error(getErrorMessage(error, "Error al guardar el producto")),
   })
 
+  const { mutate: generarCodigo, isPending: generandoCodigo } = useMutation({
+    mutationFn: generarCodigoBarras,
+    onSuccess: ({ codigo_barras }) =>
+      form.setValue("codigo_barras", codigo_barras, { shouldDirty: true }),
+    onError: (error) =>
+      toast.error(getErrorMessage(error, "No se pudo generar el código")),
+  })
+
   const onSubmit = form.handleSubmit((valores) => guardar(valores))
 
   return {
@@ -102,6 +111,7 @@ export const useProductoFormHook = () => {
     guardando,
     cargandoProducto,
     Edicion,
+    codigo: { generar: () => generarCodigo(), generando: generandoCodigo },
     imagen: { vistaPrevia, manejarCambioImagen, eliminarImagen },
     selects: {
       unidades,

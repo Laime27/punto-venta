@@ -25,6 +25,9 @@ import Caja from "@/features/caja";
 import { CajaVerPage } from "@/features/caja/pages/CajaVerPage";
 import Empresa from "@/features/empresa";
 import Impresora from "@/features/impresora";
+import AjusteInventario from "@/features/ajuste-inventario";
+import { AjusteInventarioCrearPage } from "@/features/ajuste-inventario/pages/AjusteInventarioCrearPage";
+import { AjusteInventarioVerPage } from "@/features/ajuste-inventario/pages/AjusteInventarioVerPage";
 
 export const routes = [
   {
@@ -52,6 +55,9 @@ export const routes = [
           { path: "/punto-venta", element: <POS /> },
           { path: "/metodos-pago", element: <MetodoPago /> },
           { path: "/historial-movimiento", element: <HistorialMovimiento /> },
+          { path: "/ajuste-inventario", element: <AjusteInventario /> },
+          { path: "/ajuste-inventario/crear", element: <AjusteInventarioCrearPage /> },
+          { path: "/ajuste-inventario/:id/ver", element: <AjusteInventarioVerPage /> },
           { path: "/orden-compra", element: <OrdenCompra /> },
           { path: "/orden-compra/crear", element: <OrdenCompraCrearPage /> },
           { path: "/orden-compra/:id/editar", element: <OrdenCompraActualizarPage /> },

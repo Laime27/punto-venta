@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\PlantillaExport;
 use App\Exports\ProductoExport;
+use App\Http\Requests\ImportarFilasProductoRequest;
 use App\Http\Requests\ProductoRequest;
 use App\Services\ProductoService;
 use Illuminate\Http\Request;
@@ -25,6 +26,11 @@ class ProductoController extends Controller
         $productos = $this->productoService->listarSelectProducto($request->query('search'));
 
         return response()->json($productos);
+    }
+
+    public function generarCodigo()
+    {
+        return response()->json(['codigo_barras' => $this->productoService->generarCodigoBarras()]);
     }
 
     public function store(ProductoRequest $request)
@@ -75,6 +81,21 @@ class ProductoController extends Controller
         ]);
 
         $resultado = $this->productoService->importarProductos($request->file('archivo_excel'), auth()->id());
+
+        if (! $resultado['exito']) {
+            return response()->json([
+                'mensaje' => $resultado['mensaje'],
+                'errores' => $resultado['errores'],
+                'filas'   => $resultado['filas'],
+            ], 422);
+        }
+
+        return response()->json(['mensaje' => $resultado['mensaje']], 200);
+    }
+
+    public function importarFilas(ImportarFilasProductoRequest $request)
+    {
+        $resultado = $this->productoService->importarFilasProductos($request->input('filas'), auth()->id());
 
         if (! $resultado['exito']) {
             return response()->json([

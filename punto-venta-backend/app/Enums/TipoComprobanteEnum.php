@@ -9,4 +9,5 @@ enum TipoComprobanteEnum: string
     case TICKET = '00';
     case ORDEN_COMPRA = 'OC';
     case COTIZACION = 'CT';
+    case AJUSTE_INVENTARIO = 'AI';
 }

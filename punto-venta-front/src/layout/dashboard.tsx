@@ -1,6 +1,7 @@
 "use client";
 
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 import DashboardSidebar from "@/layout/sidebar";
 import DashboardHeader from "@/layout/header";
@@ -9,6 +10,7 @@ import { Outlet } from "react-router-dom";
 
 export default function CategoriaPageDashboard() {
   return (
+    <TooltipProvider delayDuration={0}>
       <SidebarProvider className=" bg-background">
         <DashboardSidebar />
 
@@ -20,5 +22,6 @@ export default function CategoriaPageDashboard() {
           </main>
         </div>
       </SidebarProvider>
+    </TooltipProvider>
   );
 }
