@@ -15,13 +15,15 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 import { useDashboardHeader } from "./hooks/useDashboardHeader";
 
 function DashboardHeader() {
-  const { theme, toggleSidebar, cambiarTema, cerrarSesion } = useDashboardHeader();
+  const { theme, usuario, toggleSidebar, cambiarTema, cerrarSesion } = useDashboardHeader();
 
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-2 sm:gap-4 border-b bg-background px-2 sm:px-4 lg:px-6">
@@ -51,11 +53,16 @@ function DashboardHeader() {
             <Button variant="ghost" size="icon" className="rounded-full">
               <Avatar>
                 <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                <AvatarFallback>JD</AvatarFallback>
+                <AvatarFallback>{usuario.iniciales}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuLabel>
+              <p className="text-sm font-semibold">{usuario.nombre}</p>
+              <p className="text-xs font-normal text-muted-foreground">{usuario.rol}</p>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
             <DropdownMenuItem>
               <User className="mr-2 h-4 w-4" />
               <span>Perfil</span>

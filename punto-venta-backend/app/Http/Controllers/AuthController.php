@@ -19,25 +19,20 @@ class AuthController extends Controller
     public function login(AuthRequest $request)
     {
         try {
-            $response = $this->authService->loginService($request->validated());
             return response()->json([
                 'message' => 'Login exitoso',
-                'user' => $response['user'],
-                'token' => $response['token']
+                ...$this->authService->loginService($request->validated()),
             ], 200);
         } catch (Exception $e) {
             return response()->json([
                 'message' => $e->getMessage()
             ], 401);
         }
-
     }
 
     public function me(Request $request)
     {
-        return response()->json([
-            'user' => $request->user()
-        ], 200);
+        return response()->json($this->authService->datosSesion($request->user()), 200);
     }
 
     public function logout(Request $request)

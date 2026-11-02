@@ -18,3 +18,12 @@ export function formatearMoneda(valor: number | string | undefined | null): stri
   });
 }
 
+
+export function descargarArchivo(archivo: Blob, nombre: string): void {
+  const url = URL.createObjectURL(archivo);
+  const enlace = document.createElement("a");
+  enlace.href = url;
+  enlace.download = nombre;
+  enlace.click();
+  URL.revokeObjectURL(url);
+}

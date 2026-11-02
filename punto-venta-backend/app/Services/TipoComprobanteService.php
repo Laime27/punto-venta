@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\TipoComprobante;
 use App\Enums\TipoComprobanteEnum;
-use Exception;
 use App\Exceptions\BusinessException;
 
 class TipoComprobanteService
@@ -13,16 +12,16 @@ class TipoComprobanteService
     public function procesarSiguienteCorrelativo(?string $codigoSunat = null)
     {
         $codigoSunat = $codigoSunat ?? TipoComprobanteEnum::TICKET->value;
-        $tipoComprobante = TipoComprobante::where('codigo_sunat', $codigoSunat)->first();
+        $tipoComprobante = TipoComprobante::where('codigo_sunat', $codigoSunat)->lockForUpdate()->first();
 
         if (!$tipoComprobante) {
             throw new BusinessException("El tipo de comprobante no está configurado en el sistema.");
         }
 
-        $correlativoActual = $tipoComprobante->correlativo;
-        $tipoComprobante->increment('correlativo');
+        $siguienteCorrelativo = (int) $tipoComprobante->correlativo + 1;
+        $tipoComprobante->update(['correlativo' => $siguienteCorrelativo]);
 
-        $correlativoFormateado = anteponerCeros($correlativoActual + 1);
+        $correlativoFormateado = anteponerCeros($siguienteCorrelativo);
         $codigoVenta = $tipoComprobante->serie . '-' . $correlativoFormateado;
 
         return [

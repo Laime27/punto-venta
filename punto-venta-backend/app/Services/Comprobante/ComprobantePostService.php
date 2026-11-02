@@ -36,13 +36,12 @@ class ComprobantePostService
         protected ClienteService $clienteService,
         protected TipoComprobanteService $tipoComprobanteService,
         protected CajaService $cajaService,
-        protected CotizacionService $cotizacionService
+        protected CotizacionService $cotizacionService,
+        protected ComprobanteCalculoService $comprobanteCalculoService
     ) {}
 
     public function registrarVenta(array $data)
     {
-        $this->validarPagosVenta($data);
-
         $codigoUnico = $data['codigo_unico'] ?? null;
         $lock = null;
 
@@ -62,22 +61,19 @@ class ComprobantePostService
 
         try {
             return DB::transaction(function () use ($data) {
-                $cotizacion = null;
-                if (!empty($data['cotizacion_id'])) {
-                    $cotizacion = Cotizacion::with('detalles')->lockForUpdate()->findOrFail($data['cotizacion_id']);
-                    $this->cotizacionService->validarConvertibleAVenta($cotizacion);
-                    $this->validarPreciosCotizados($cotizacion, $data['carrito'] ?? []);
-                }
+                $cotizacion = $this->obtenerCotizacionConvertible($data['cotizacion_id'] ?? null);
+                $productos = $this->bloquearYValidarStock($data['carrito']);
+                $venta = $this->comprobanteCalculoService->calcular($data['carrito'], $productos, $data['totales'], $cotizacion);
 
-                $productos = $this->bloquearYValidarStock($data['carrito'] ?? []);
+                $this->validarPagosVenta($data, $venta['total']);
 
                 $infoComprobante = $this->tipoComprobanteService->procesarSiguienteCorrelativo();
                 $clienteId = $this->obtenerClienteId($data);
                 $tipoPago = $data['tipoVenta'] ?? ($data['tipo_pago'] ?? 'contado');
 
-                $comprobante = $this->crearComprobante($data, $infoComprobante, $clienteId, $tipoPago);
+                $comprobante = $this->crearComprobante($venta, $infoComprobante, $clienteId, $tipoPago);
 
-                $this->procesarCarrito($comprobante, $data['carrito'] ?? [], $productos);
+                $this->procesarCarrito($comprobante, $venta['items'], $productos);
 
                 if (!empty($data['pagos'])) {
                     $this->procesarPagos($comprobante, $data['pagos']);
@@ -103,6 +99,18 @@ class ComprobantePostService
         }
     }
 
+    private function obtenerCotizacionConvertible(?int $cotizacionId): ?Cotizacion
+    {
+        if (!$cotizacionId) {
+            return null;
+        }
+
+        $cotizacion = Cotizacion::with('detalles')->lockForUpdate()->findOrFail($cotizacionId);
+        $this->cotizacionService->validarConvertibleAVenta($cotizacion);
+
+        return $cotizacion;
+    }
+
     private function obtenerClienteId(array $data): int
     {
         $clienteId = $data['cliente_id'] ?? null;
@@ -113,7 +121,7 @@ class ComprobantePostService
         return (int) $clienteId;
     }
 
-    private function crearComprobante(array $data, array $infoComprobante, int $clienteId, string $tipoPago): Comprobante
+    private function crearComprobante(array $venta, array $infoComprobante, int $clienteId, string $tipoPago): Comprobante
     {
         $estadoComprobante = $tipoPago === 'credito' ? EstadoComprobanteEnum::PENDIENTE->value : EstadoComprobanteEnum::PAGADO->value;
         $formaPago = $tipoPago === 'credito' ? FormaPagoEnum::CREDITO->value : FormaPagoEnum::CONTADO->value;
@@ -132,10 +140,10 @@ class ComprobantePostService
             'serie' => $infoComprobante['serie'],
             'correlativo' => $infoComprobante['correlativo'],
             'fecha_emision' => now(),
-            'subtotal' => $data['totales']['subtotal'] ?? 0,
+            'subtotal' => $venta['subtotal'],
             'impuesto' => 0,
-            'descuento' => $data['totales']['descuento'] ?? 0,
-            'total' => $data['totales']['total'] ?? 0,
+            'descuento' => $venta['descuento'],
+            'total' => $venta['total'],
             'forma_pago' => $formaPago,
             'estado' => $estadoComprobante,
             'user_id' => Auth::id(),
@@ -153,7 +161,8 @@ class ComprobantePostService
             ->groupBy('producto_id')
             ->map(fn ($items) => round((float) $items->sum('cantidad'), 2));
 
-        $productos = Producto::whereIn('id', $cantidades->keys())
+        $productos = Producto::with('unidad:id,permite_decimales')
+            ->whereIn('id', $cantidades->keys())
             ->orderBy('id')
             ->lockForUpdate()
             ->get()
@@ -170,62 +179,36 @@ class ComprobantePostService
         return $productos;
     }
 
-    // Los productos de la cotización se venden al precio cotizado; los agregados aparte, a su precio normal
-    private function validarPreciosCotizados(Cotizacion $cotizacion, array $carrito): void
+    private function procesarCarrito(Comprobante $comprobante, Collection $items, Collection $productos): void
     {
-        $detalles = $cotizacion->detalles->keyBy('producto_id');
-
-        foreach ($carrito as $item) {
-            $detalle = $detalles->get($item['producto_id']);
-            if (!$detalle) continue;
-
-            $precioCotizado = $this->cotizacionService->precioCotizado($detalle);
-
-            if (abs((float) $item['precio'] - $precioCotizado) > 0.01) {
-                $nombre = Producto::find($item['producto_id'])?->nombre ?? "#{$item['producto_id']}";
-                throw new BusinessException("El precio de {$nombre} debe ser el cotizado ({$precioCotizado}).");
-            }
-        }
-    }
-
-    private function procesarCarrito(Comprobante $comprobante, array $carrito, Collection $productos): void
-    {
-        foreach ($carrito as $item) {
+        foreach ($items as $item) {
             $producto = $productos->get($item['producto_id']);
+            $stockAnterior = (float) $producto->stock;
+            $stockActual = round($stockAnterior - $item['cantidad'], 2);
 
-            if ($producto) {
-                if ($item['cantidad'] == null) {
-                    throw new BusinessException("La cantidad del producto " . $producto->nombre . " no puede ser nula.");
-                }
+            $producto->update(['stock' => $stockActual]);
 
-                if ($item['cantidad'] > 0) {
-                    $stockAnterior = $producto->stock;
-                    $stockActual = $stockAnterior - $item['cantidad'];
-
-                    $producto->update(['stock' => $stockActual]);
-
-                    HistorialMovimiento::create([
-                        'producto_id' => $producto->id,
-                        'user_id' => Auth::id() ?? 1,
-                        'tipo_movimiento_id' => TipoMovimientoEnum::VENTA->value,
-                        'documento_id' => $comprobante->id,
-                        'documento_type' => Comprobante::class,
-                        'operacion' => '-',
-                        'cantidad' => $item['cantidad'],
-                        'stock_anterior' => $stockAnterior,
-                        'stock_actual' => $stockActual,
-                        'observacion' => 'Venta registrada',
-                        'fecha_emision' => now(),
-                    ]);
-                }
-            }
+            HistorialMovimiento::create([
+                'producto_id' => $producto->id,
+                'user_id' => Auth::id(),
+                'tipo_movimiento_id' => TipoMovimientoEnum::VENTA->value,
+                'documento_id' => $comprobante->id,
+                'documento_type' => Comprobante::class,
+                'operacion' => '-',
+                'cantidad' => $item['cantidad'],
+                'stock_anterior' => $stockAnterior,
+                'stock_actual' => $stockActual,
+                'observacion' => 'Venta registrada',
+                'fecha_emision' => now(),
+            ]);
 
             ComprobanteDetalle::create([
                 'comprobante_id' => $comprobante->id,
-                'producto_id' => $item['producto_id'],
+                'producto_id' => $producto->id,
                 'cantidad' => $item['cantidad'],
                 'precio_unitario' => $item['precio'],
-                'subtotal' => $item['subtotal']
+                'costo_unitario' => $producto->precio_compra ?? 0,
+                'subtotal' => $item['subtotal'],
             ]);
         }
     }
@@ -294,10 +277,9 @@ class ComprobantePostService
         }
     }
 
-    private function validarPagosVenta(array $data): void
+    private function validarPagosVenta(array $data, float $total): void
     {
         $tipoPago = $data['tipoVenta'] ?? ($data['tipo_pago'] ?? 'contado');
-        $total = (float) ($data['totales']['total'] ?? 0);
         $pagos = $data['pagos'] ?? [];
         $montoPagado = collect($pagos)->sum('monto');
 

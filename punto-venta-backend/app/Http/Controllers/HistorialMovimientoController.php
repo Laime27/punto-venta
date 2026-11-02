@@ -2,26 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\HistorialMovimientoRequest;
 use App\Services\HistorialMovimientoService;
-use Illuminate\Http\Request;
 
 class HistorialMovimientoController extends Controller
 {
-    protected $historialMovimientoService;
+    public function __construct(protected HistorialMovimientoService $historialMovimientoService) {}
 
-    public function __construct(HistorialMovimientoService $historialMovimientoService)
+    public function index(HistorialMovimientoRequest $request)
     {
-        $this->historialMovimientoService = $historialMovimientoService;
-    }
-
-    public function index(Request $request)
-    {
-        $perPage = $request->input('per_page', 10);
-        $historial = $this->historialMovimientoService->ListarHistorialMovimientos($perPage);
+        $historial = $this->historialMovimientoService->listarHistorialMovimientos($request->validated());
 
         return response()->json([
             'status' => 'success',
             'data' => $historial
         ]);
+    }
+
+    public function tipos()
+    {
+        return response()->json($this->historialMovimientoService->listarTipos());
     }
 }

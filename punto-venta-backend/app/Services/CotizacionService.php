@@ -143,9 +143,14 @@ class CotizacionService
             'items' => $cotizacion->detalles->map(fn ($detalle) => [
                 'producto' => $detalle->producto,
                 'cantidad' => (float) $detalle->cantidad,
-                'precio' => (float) $detalle->precio_unitario - (float) $detalle->descuento_unitario,
+                'precio' => $this->precioCotizado($detalle),
             ])->values(),
         ];
+    }
+
+    public function precioCotizado(CotizacionDetalle $detalle): float
+    {
+        return round((float) $detalle->precio_unitario - (float) $detalle->descuento_unitario, 2);
     }
 
     

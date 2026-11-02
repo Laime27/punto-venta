@@ -15,6 +15,7 @@ import { useCategoriaHook } from "../hooks/CategoriaHook";
 import { CategoriaModal } from "./CategoriaModal";
 import { CategoriaTableBody } from "./CategoriaTableBody";
 import { Badge } from "@/components/ui/badge"
+import { Puede } from "@/features/auth/components/Puede";
 
 export function CategoriaTable() {
   const { data, pagination, modal, eliminar, searchTerm, setSearchTerm } = useCategoriaHook();
@@ -30,10 +31,12 @@ export function CategoriaTable() {
             <Badge>{data.total}</Badge>
           </h2>
         </div>
-        <Button onClick={modal.abrirCrear} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Nueva categoría
-        </Button>
+        <Puede permiso="categoria.crear">
+          <Button onClick={modal.abrirCrear} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Nueva categoría
+          </Button>
+        </Puede>
       </div>
 
       <Card>

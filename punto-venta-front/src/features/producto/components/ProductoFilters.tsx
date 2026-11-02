@@ -82,8 +82,8 @@ export function ProductoFilters({ filtrosState, listarSelectCategoria }: Product
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="todos">Stock: Todos</SelectItem>
-              <SelectItem value="bajo_stock">Stock Bajo</SelectItem>
-              <SelectItem value="sin_stock">Stock Normal</SelectItem>
+              <SelectItem value="stock_bajo">Stock Bajo</SelectItem>
+              <SelectItem value="stock_normal">Stock Normal</SelectItem>
             </SelectContent>
           </Select>
         </div>

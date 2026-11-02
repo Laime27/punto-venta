@@ -15,6 +15,7 @@ import { useProveedorHook } from "../hooks/ProveedorHook"
 import { ProveedorModal } from "./ProveedorModal"
 import { ProveedorTableBody } from "./ProveedorTableBody"
 import { Badge } from "@/components/ui/badge"
+import { Puede } from "@/features/auth/components/Puede"
 
 export function ProveedorTable() {
   const { data, pagination, modal, eliminar, searchTerm, setSearchTerm } = useProveedorHook()
@@ -29,10 +30,12 @@ export function ProveedorTable() {
             <Badge>{data.total}</Badge>
           </h2>
         </div>
-        <Button onClick={modal.abrirCrear} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Nuevo proveedor
-        </Button>
+        <Puede permiso="proveedor.crear">
+          <Button onClick={modal.abrirCrear} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Nuevo proveedor
+          </Button>
+        </Puede>
       </div>
 
       <Card>

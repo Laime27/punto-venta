@@ -2,6 +2,8 @@ import { Loader2, Mail, Phone, MapPin, Pencil, Trash2 } from "lucide-react"
 import { TableBody, TableCell, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import type { ProveedorType } from "../types/ProveedorType"
+import { Puede } from "@/features/auth/components/Puede"
+import { usePermisos } from "@/features/auth/hooks/usePermisos"
 
 interface ProveedorTableBodyProps {
   isLoading: boolean
@@ -18,6 +20,8 @@ export function ProveedorTableBody({
   onEdit,
   onDelete,
 }: ProveedorTableBodyProps) {
+  const { puede } = usePermisos()
+  const puedeEditar = puede("proveedor.editar")
   if (isLoading) {
     return (
       <TableBody>
@@ -45,7 +49,7 @@ export function ProveedorTableBody({
   return (
     <TableBody>
       {proveedores.map((proveedor, index) => (
-        <TableRow key={proveedor.id} onClick={() => onEdit(proveedor.id)}>
+        <TableRow key={proveedor.id} onClick={puedeEditar ? () => onEdit(proveedor.id) : undefined}>
           <TableCell className="font-medium">
             {(page - 1) * 10 + index + 1}
           </TableCell>
@@ -84,28 +88,32 @@ export function ProveedorTableBody({
           </TableCell>
           <TableCell>
             <div className="flex justify-center gap-2">
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8 text-blue-600"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onEdit(proveedor.id)
-                }}
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8 text-destructive"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onDelete(proveedor.id)
-                }}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <Puede permiso="proveedor.editar">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-blue-600"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onEdit(proveedor.id)
+                  }}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              </Puede>
+              <Puede permiso="proveedor.eliminar">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-destructive"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onDelete(proveedor.id)
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </Puede>
             </div>
           </TableCell>
         </TableRow>

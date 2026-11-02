@@ -2,6 +2,8 @@ import { Loader2, Pencil, Trash2 } from "lucide-react"
 import { TableBody, TableCell, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import type { CategoriaType } from "../types/CategoriaType"
+import { Puede } from "@/features/auth/components/Puede"
+import { usePermisos } from "@/features/auth/hooks/usePermisos"
 
 interface CategoriaTableBodyProps {
   isLoading: boolean
@@ -18,6 +20,8 @@ export function CategoriaTableBody({
   onEdit,
   onDelete,
 }: CategoriaTableBodyProps) {
+  const { puede } = usePermisos()
+  const puedeEditar = puede("categoria.editar")
   if (isLoading) {
     return (
       <TableBody>
@@ -45,35 +49,39 @@ export function CategoriaTableBody({
   return (
     <TableBody>
       {categorias.map((categoria, index) => (
-        <TableRow key={categoria.id} onClick={() => onEdit(categoria.id)}>
+        <TableRow key={categoria.id} onClick={puedeEditar ? () => onEdit(categoria.id) : undefined}>
           <TableCell className="font-medium">
             {(page - 1) * 10 + index + 1}
           </TableCell>
           <TableCell>{categoria.nombre}</TableCell>
           <TableCell>
             <div className="flex justify-center gap-2">
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8 text-blue-600"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onEdit(categoria.id)
-                }}
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8 text-destructive"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onDelete(categoria.id)
-                }}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <Puede permiso="categoria.editar">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-blue-600"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onEdit(categoria.id)
+                  }}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              </Puede>
+              <Puede permiso="categoria.eliminar">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-destructive"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onDelete(categoria.id)
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </Puede>
             </div>
           </TableCell>
         </TableRow>

@@ -165,6 +165,7 @@ class ProductoImport implements ToModel, WithHeadingRow, WithValidation, SkipsEm
                 'stock_anterior'     => $stockAnterior,
                 'stock_actual'       => $stockNuevo,
                 'observacion'        => 'Importación masiva desde Excel ingresado por el usuario: ' . $nombreUsuario,
+                'fecha_emision'      => now(),
             ]);
         }
     }

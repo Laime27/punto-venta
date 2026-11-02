@@ -1,6 +1,9 @@
+import type { ReactNode } from "react";
 import DashboardLayout from "@/layout/dashboard";
 import Auth from "@/features/auth";
 import { ProtectedRoute, PublicRoute } from "./ProtectedRoute";
+import { PermisoRoute } from "./PermisoRoute";
+import type { RequisitoPermiso } from "@/features/auth/hooks/usePermisos";
 import Dashboard from "@/features/admin/dashboard";
 import Categoria from "@/features/categoria";
 import Producto from "@/features/producto";
@@ -28,6 +31,20 @@ import Impresora from "@/features/impresora";
 import AjusteInventario from "@/features/ajuste-inventario";
 import { AjusteInventarioCrearPage } from "@/features/ajuste-inventario/pages/AjusteInventarioCrearPage";
 import { AjusteInventarioVerPage } from "@/features/ajuste-inventario/pages/AjusteInventarioVerPage";
+import Kardex from "@/features/kardex";
+import ReporteVentas from "@/features/reporte";
+import { ReporteProductosPage } from "@/features/reporte/pages/ReporteProductosPage";
+import { ReporteCuentasPorCobrarPage } from "@/features/reporte/pages/ReporteCuentasPorCobrarPage";
+import { ReporteInventarioPage } from "@/features/reporte/pages/ReporteInventarioPage";
+import { ReportePerdidasPage } from "@/features/reporte/pages/ReportePerdidasPage";
+import Usuario from "@/features/usuario";
+import Rol from "@/features/rol";
+import { RolFormPage } from "@/features/rol/pages/RolFormPage";
+
+const ruta = (path: string, permiso: RequisitoPermiso, element: ReactNode) => ({
+  path,
+  element: <PermisoRoute permiso={permiso}>{element}</PermisoRoute>,
+});
 
 export const routes = [
   {
@@ -46,33 +63,43 @@ export const routes = [
         element: <DashboardLayout />,
         children: [
           { path: "/dashboard", element: <Dashboard /> },
-          { path: "/categoria", element: <Categoria /> },
-          { path: "/producto", element: <Producto /> },
-          { path: "/proveedor", element: <Proveedor /> },
-          { path: "/cliente", element: <Cliente /> },
-          { path: "/producto/crear", element: <ProductoFormPage /> },
-          { path: "/producto/:id/editar", element: <ProductoFormPage /> },
-          { path: "/punto-venta", element: <POS /> },
-          { path: "/metodos-pago", element: <MetodoPago /> },
-          { path: "/historial-movimiento", element: <HistorialMovimiento /> },
-          { path: "/ajuste-inventario", element: <AjusteInventario /> },
-          { path: "/ajuste-inventario/crear", element: <AjusteInventarioCrearPage /> },
-          { path: "/ajuste-inventario/:id/ver", element: <AjusteInventarioVerPage /> },
-          { path: "/orden-compra", element: <OrdenCompra /> },
-          { path: "/orden-compra/crear", element: <OrdenCompraCrearPage /> },
-          { path: "/orden-compra/:id/editar", element: <OrdenCompraActualizarPage /> },
-          { path: "/orden-compra/:id/ver", element: <OrdenCompraVerPage /> },
-          { path: "/orden-compra/:id/recibir", element: <OrdenCompraRecibirPage /> },
-          { path: "/cotizacion", element: <Cotizacion /> },
-          { path: "/cotizacion/crear", element: <CotizacionCrearPage /> },
-          { path: "/cotizacion/:id/editar", element: <CotizacionActualizarPage /> },
-          { path: "/cotizacion/:id/ver", element: <CotizacionVerPage /> },
-          { path: "/comprobante", element: <Comprobante /> },
-          { path: "/comprobante/:id/abonar", element: <ComprobanteAbonarPage /> },
-          { path: "/caja", element: <Caja /> },
-          { path: "/caja/:id/ver", element: <CajaVerPage /> },
-          { path: "/empresa", element: <Empresa /> },
-          { path: "/impresora", element: <Impresora /> },
+          ruta("/punto-venta", "venta.registrar", <POS />),
+          ruta("/caja", "caja.ver", <Caja />),
+          ruta("/caja/:id/ver", "caja.ver", <CajaVerPage />),
+          ruta("/comprobante", "comprobante.ver", <Comprobante />),
+          ruta("/comprobante/:id/abonar", "comprobante.abonar", <ComprobanteAbonarPage />),
+          ruta("/cotizacion", "cotizacion.ver", <Cotizacion />),
+          ruta("/cotizacion/crear", "cotizacion.crear", <CotizacionCrearPage />),
+          ruta("/cotizacion/:id/editar", "cotizacion.editar", <CotizacionActualizarPage />),
+          ruta("/cotizacion/:id/ver", "cotizacion.ver", <CotizacionVerPage />),
+          ruta("/cliente", "cliente.ver", <Cliente />),
+          ruta("/producto", "producto.ver", <Producto />),
+          ruta("/producto/crear", "producto.crear", <ProductoFormPage />),
+          ruta("/producto/:id/editar", "producto.editar", <ProductoFormPage />),
+          ruta("/producto/:id/kardex", "inventario.movimientos", <Kardex />),
+          ruta("/categoria", "categoria.ver", <Categoria />),
+          ruta("/ajuste-inventario", "ajuste.ver", <AjusteInventario />),
+          ruta("/ajuste-inventario/crear", "ajuste.crear", <AjusteInventarioCrearPage />),
+          ruta("/ajuste-inventario/:id/ver", ["ajuste.ver", "ajuste.crear"], <AjusteInventarioVerPage />),
+          ruta("/historial-movimiento", "inventario.movimientos", <HistorialMovimiento />),
+          ruta("/orden-compra", "orden_compra.ver", <OrdenCompra />),
+          ruta("/orden-compra/crear", "orden_compra.crear", <OrdenCompraCrearPage />),
+          ruta("/orden-compra/:id/editar", "orden_compra.editar", <OrdenCompraActualizarPage />),
+          ruta("/orden-compra/:id/ver", "orden_compra.ver", <OrdenCompraVerPage />),
+          ruta("/orden-compra/:id/recibir", "orden_compra.recibir", <OrdenCompraRecibirPage />),
+          ruta("/proveedor", "proveedor.ver", <Proveedor />),
+          ruta("/reportes/ventas", "reporte.ventas", <ReporteVentas />),
+          ruta("/reportes/productos", "reporte.productos", <ReporteProductosPage />),
+          ruta("/reportes/cuentas-por-cobrar", "reporte.cuentas_por_cobrar", <ReporteCuentasPorCobrarPage />),
+          ruta("/reportes/inventario", "reporte.inventario", <ReporteInventarioPage />),
+          ruta("/reportes/perdidas", "reporte.perdidas", <ReportePerdidasPage />),
+          ruta("/empresa", "configuracion.empresa", <Empresa />),
+          ruta("/metodos-pago", "configuracion.metodos_pago", <MetodoPago />),
+          ruta("/impresora", "configuracion.impresora", <Impresora />),
+          ruta("/usuarios", "usuario.ver", <Usuario />),
+          ruta("/roles", "rol.gestionar", <Rol />),
+          ruta("/roles/crear", "rol.gestionar", <RolFormPage />),
+          ruta("/roles/:id/editar", "rol.gestionar", <RolFormPage />),
         ]
       }
     ]

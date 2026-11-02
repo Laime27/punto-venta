@@ -18,6 +18,7 @@ export function AuthForm() {
           <div className="grid gap-2">
             <Label htmlFor="email">Correo Electrónico</Label>
             <Input
+              id="email"
               type="text"
               autoComplete="email"
               disabled={loading}
@@ -33,6 +34,7 @@ export function AuthForm() {
             <Label htmlFor="password">Contraseña</Label>
             <div className="relative">
               <Input
+                id="password"
                 type={showPassword ? "text" : "password"}
                 disabled={loading}
                 placeholder="*******"
@@ -41,6 +43,7 @@ export function AuthForm() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}

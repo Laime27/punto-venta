@@ -16,11 +16,17 @@ class RecibirOrdenCompraService
     public function recibir(int $id, array $data)
     {
         return DB::transaction(function () use ($id, $data) {
-            $ordenCompra = OrdenCompra::with('detalles')->findOrFail($id);
+            $ordenCompra = OrdenCompra::with('detalles')->lockForUpdate()->findOrFail($id);
 
             if ($ordenCompra->estado === EstadoOrdenCompraEnum::ANULADA->value) {
                 throw new BusinessException("La orden de compra no puede ser recibida en su estado actual.");
             }
+
+            $productos = Producto::whereIn('id', $ordenCompra->detalles->pluck('producto_id'))
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
 
             $totalReal = 0;
             $todasCompletas = true;
@@ -41,7 +47,7 @@ class RecibirOrdenCompraService
                     }
 
                     if ($cantidadAIncrementar > 0) {
-                        $this->actualizarStockHistorial($detalle, $cantidadAIncrementar, $ordenCompra->id);
+                        $this->actualizarStockHistorial($productos->get($detalle->producto_id), $detalle, $cantidadAIncrementar, $ordenCompra->id);
                     }
                 }
             }
@@ -55,13 +61,13 @@ class RecibirOrdenCompraService
         });
     }
 
-    private function actualizarStockHistorial($detalle, $cantidadAIncrementar, $ordenCompraId)
+    private function actualizarStockHistorial(Producto $producto, $detalle, $cantidadAIncrementar, $ordenCompraId)
     {
-        $producto = Producto::findOrFail($detalle->producto_id);
-        $stockAnterior = $producto->stock;
-        $producto->stock += $cantidadAIncrementar;
-        $producto->precio_compra = $detalle->precio_unitario;
-        $producto->save();
+        $stockAnterior = (float) $producto->stock;
+        $producto->update([
+            'stock' => round($stockAnterior + $cantidadAIncrementar, 2),
+            'precio_compra' => $detalle->precio_unitario,
+        ]);
 
         HistorialMovimiento::create([
             'producto_id' => $producto->id,

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Rol;
 use App\Models\Categoria;
 use Database\Factories\CategoriaFactory;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -23,12 +24,13 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
 
+
         if (! User::where('email', 'admin@gmail.com')->exists()) {
             User::factory()->create([
                 'name' => 'admin',
                 'email' => 'admin@gmail.com',
                 'password'=> bcrypt('123456789'),
-            ]);
+            ])->assignRole(Rol::ADMINISTRADOR);
         }
 
         if (Empresa::count() === 0) {
@@ -141,9 +143,11 @@ class DatabaseSeeder extends Seeder
                 ['nombre' => 'ARTICULO CREADO'],
             ]);
         }
+        
+        $this->call(RolesPermisosSeeder::class);
 
-        // $this->call([
-        //     DummyDataSeeder::class,
-        // ]);
+        $this->call([
+            // DummyDataSeeder::class,
+        ]);
     }
 }

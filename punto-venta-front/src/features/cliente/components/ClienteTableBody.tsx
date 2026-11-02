@@ -2,6 +2,8 @@ import { Loader2, Mail, Phone, MapPin, Pencil, Trash2 } from "lucide-react"
 import { TableBody, TableCell, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import type { ClienteType } from "../types/ClienteType"
+import { Puede } from "@/features/auth/components/Puede"
+import { usePermisos } from "@/features/auth/hooks/usePermisos"
 
 interface ClienteTableBodyProps {
   isLoading: boolean
@@ -18,6 +20,8 @@ export function ClienteTableBody({
   onEdit,
   onDelete,
 }: ClienteTableBodyProps) {
+  const { puede } = usePermisos()
+  const puedeEditar = puede("cliente.editar")
   if (isLoading) {
     return (
       <TableBody>
@@ -45,7 +49,7 @@ export function ClienteTableBody({
   return (
     <TableBody>
       {clientes.map((cliente, index) => (
-        <TableRow key={cliente.id} onClick={() => onEdit(cliente.id)}>
+        <TableRow key={cliente.id} onClick={puedeEditar ? () => onEdit(cliente.id) : undefined}>
           <TableCell className="font-medium">
             {(page - 1) * 10 + index + 1}
           </TableCell>
@@ -84,28 +88,32 @@ export function ClienteTableBody({
           </TableCell>
           <TableCell>
             <div className="flex justify-center gap-2">
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8 text-blue-600"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onEdit(cliente.id)
-                }}
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8 text-destructive"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onDelete(cliente.id)
-                }}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <Puede permiso="cliente.editar">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-blue-600"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onEdit(cliente.id)
+                  }}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              </Puede>
+              <Puede permiso="cliente.eliminar">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-destructive"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onDelete(cliente.id)
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </Puede>
             </div>
           </TableCell>
         </TableRow>

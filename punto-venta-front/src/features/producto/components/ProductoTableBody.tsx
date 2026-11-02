@@ -1,16 +1,19 @@
-import { Loader2, ImageIcon, Pencil, Trash2 } from "lucide-react"
+import { Loader2, ImageIcon, Pencil, Trash2, History } from "lucide-react"
 import { TableBody, TableCell, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { ProductoType } from "../types/ProductoType"
 import { formatearMoneda } from "@/lib/utils"
 import { useMonedaHook } from "@/features/empresa/hooks/useMonedaHook"
+import { StockBadge } from "@/components/StockBadge"
+import { Puede } from "@/features/auth/components/Puede"
 
 interface ProductoTableBodyProps {
   isLoading: boolean
   productos: ProductoType[]
   onEdit: (id: number) => void
   onDelete: (id: number) => void
+  onKardex: (id: number) => void
 }
 
 export function ProductoTableBody({
@@ -18,6 +21,7 @@ export function ProductoTableBody({
   productos,
   onEdit,
   onDelete,
+  onKardex,
 }: ProductoTableBodyProps) {
   const { simbolo } = useMonedaHook()
   if (isLoading) {
@@ -70,9 +74,11 @@ export function ProductoTableBody({
           <TableCell>
             {producto.categoria?.nombre ?? ""}
           </TableCell>
-          <TableCell className="font-medium">
-            {simbolo} {formatearMoneda(producto.precio_compra)}
-          </TableCell>
+          <Puede permiso="producto.ver_costo">
+            <TableCell className="font-medium">
+              {simbolo} {formatearMoneda(producto.precio_compra)}
+            </TableCell>
+          </Puede>
           <TableCell className="font-medium">
             {simbolo} {formatearMoneda(producto.precio_mayoreo)}
           </TableCell>
@@ -80,7 +86,7 @@ export function ProductoTableBody({
             {simbolo} {formatearMoneda(producto.precio_venta)}
           </TableCell>
           <TableCell>
-            {producto.stock}
+            <StockBadge stock={producto.stock} stockMinimo={producto.stock_minimo} />
           </TableCell>
           <TableCell>
             <Badge
@@ -93,22 +99,37 @@ export function ProductoTableBody({
           </TableCell>
           <TableCell>
             <div className="flex justify-center gap-2">
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8 text-blue-600"
-                onClick={() => onEdit(producto.id)}
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8 text-destructive"
-                onClick={() => onDelete(producto.id)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <Puede permiso="inventario.movimientos">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-amber-600"
+                  onClick={() => onKardex(producto.id)}
+                  title="Ver kardex"
+                >
+                  <History className="h-4 w-4" />
+                </Button>
+              </Puede>
+              <Puede permiso="producto.editar">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-blue-600"
+                  onClick={() => onEdit(producto.id)}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              </Puede>
+              <Puede permiso="producto.eliminar">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-destructive"
+                  onClick={() => onDelete(producto.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </Puede>
             </div>
           </TableCell>
         </TableRow>

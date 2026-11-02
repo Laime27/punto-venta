@@ -15,6 +15,7 @@ import { useClienteHook } from "../hooks/ClienteHook"
 import { ClienteModal } from "./ClienteModal"
 import { ClienteTableBody } from "./ClienteTableBody"
 import { Badge } from "@/components/ui/badge"
+import { Puede } from "@/features/auth/components/Puede"
 
 export function ClienteTable() {
   const { data, pagination, modal, eliminar, searchTerm, setSearchTerm } = useClienteHook()
@@ -29,10 +30,12 @@ export function ClienteTable() {
             <Badge>{data.total}</Badge>
           </h2>
         </div>
-        <Button onClick={modal.abrirCrear} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Nuevo cliente
-        </Button>
+        <Puede permiso="cliente.crear">
+          <Button onClick={modal.abrirCrear} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Nuevo cliente
+          </Button>
+        </Puede>
       </div>
 
       <Card>

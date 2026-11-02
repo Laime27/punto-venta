@@ -18,6 +18,8 @@ import { ProductoFilters } from "./ProductoFilters"
 import { ProductoImportModal } from "./ProductoImportModal"
 import { useProductoImportHook } from "../hooks/ProductoImportHook"
 import { Card, CardContent } from "@/components/ui/card"
+import { StockLeyenda } from "@/components/StockBadge"
+import { Puede } from "@/features/auth/components/Puede"
 
 export function ProductoTable() {
   const { datos, paginacion, eliminar, filtrosState, listarSelectCategoria } = useProductoHook()
@@ -33,14 +35,18 @@ export function ProductoTable() {
           <Badge>{datos.total}</Badge>
         </h2>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={importHook.funciones.abrirModal} className="gap-2">
-            <Upload className="h-4 w-4" />
-            Importar Excel
-          </Button>
-          <Button onClick={() => navigate("/producto/crear")} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Nuevo producto
-          </Button>
+          <Puede permiso="producto.importar">
+            <Button variant="outline" onClick={importHook.funciones.abrirModal} className="gap-2">
+              <Upload className="h-4 w-4" />
+              Importar Excel
+            </Button>
+          </Puede>
+          <Puede permiso="producto.crear">
+            <Button onClick={() => navigate("/producto/crear")} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Nuevo producto
+            </Button>
+          </Puede>
         </div>
       </div>
 
@@ -50,11 +56,12 @@ export function ProductoTable() {
 
       <Card>
         <CardContent className="p-0">
-          <div className="p-6 w-full">
+          <div className="p-6 w-full space-y-4">
             <ProductoFilters
               filtrosState={filtrosState}
               listarSelectCategoria={listarSelectCategoria}
             />
+            <StockLeyenda />
           </div>
 
           <div className="border-t">
@@ -64,7 +71,9 @@ export function ProductoTable() {
                   <TableHead className="w-16">Imagen</TableHead>
                   <TableHead>Producto</TableHead>
                   <TableHead>Categoría</TableHead>
-                  <TableHead>P. Costo</TableHead>
+                  <Puede permiso="producto.ver_costo">
+                    <TableHead>P. Costo</TableHead>
+                  </Puede>
                   <TableHead>P. Costo x Mayor</TableHead>
                   <TableHead>P. Venta</TableHead>
                   <TableHead>Stock</TableHead>
@@ -76,6 +85,7 @@ export function ProductoTable() {
                 isLoading={datos.isLoading}
                 productos={datos.productos}
                 onEdit={(id) => navigate(`/producto/${id}/editar`)}
+                onKardex={(id) => navigate(`/producto/${id}/kardex`)}
                 onDelete={confirm.abrir}
               />
             </Table>

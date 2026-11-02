@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
+use App\Exceptions\BusinessException;
+use App\Models\Permiso;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Exception;
-use App\Exceptions\BusinessException;
 
 class AuthService
 {
@@ -17,11 +17,24 @@ class AuthService
             throw new BusinessException('Credenciales incorrectas');
         }
 
-        $token = $user->createToken('access-token')->plainTextToken;
-        
+        if (! $user->activo) {
+            throw new BusinessException('Tu usuario está desactivado. Comunícate con el administrador.');
+        }
+
         return [
-            'user' => $user,
-            'token' => $token
+            ...$this->datosSesion($user),
+            'token' => $user->createToken('access-token')->plainTextToken,
+        ];
+    }
+
+    public function datosSesion(User $user): array
+    {
+        return [
+            'user' => $user->only(['id', 'name', 'email']),
+            'rol' => $user->roles()->value('name'),
+            'permisos' => $user->esAdministrador()
+                ? Permiso::pluck('name')
+                : $user->getAllPermissions()->pluck('name')->values(),
         ];
     }
 

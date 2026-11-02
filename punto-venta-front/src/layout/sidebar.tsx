@@ -13,9 +13,9 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar"
 
-import { Store } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
-import { configItems, dashboardItem, menuGroups, puntoVentaItem, type MenuItemsProps } from "./sidebarItems"
+import { type MenuItemsProps } from "./sidebarItems"
+import { useSidebarMenu } from "./hooks/useSidebarMenu"
 
 const itemClass =
   "relative h-9 rounded-lg text-sidebar-foreground transition-colors focus-visible:ring-sidebar-ring/40 " +
@@ -26,6 +26,7 @@ const groupLabelClass = "text-[11px] font-semibold uppercase tracking-wider text
 
 function DashboardSidebar() {
   const location = useLocation()
+  const { puntoVenta, dashboard, grupos, configuracion } = useSidebarMenu()
 
   const isActive = (url: string) =>
     location.pathname === url || location.pathname.startsWith(`${url}/`)
@@ -48,30 +49,32 @@ function DashboardSidebar() {
             <span className="truncate text-lg font-semibold text-center text-sidebar-accent-foreground">Punto de Venta</span>
         </div>
 
+        {puntoVenta && (
         <SidebarMenu className="mt-2">
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              tooltip={puntoVentaItem.label}
+              tooltip={puntoVenta.label}
               className="h-10 justify-center rounded-lg bg-sidebar-primary font-semibold text-sidebar-primary-foreground shadow-md shadow-sidebar-primary/20 hover:bg-sidebar-primary/90 hover:text-sidebar-primary-foreground active:bg-sidebar-primary/80 active:text-sidebar-primary-foreground"
             >
-              <Link to={puntoVentaItem.url}>
-                <puntoVentaItem.icon />
-                <span>{puntoVentaItem.label}</span>
+              <Link to={puntoVenta.url}>
+                <puntoVenta.icon />
+                <span>{puntoVenta.label}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+        )}
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>{renderItem(dashboardItem)}</SidebarMenu>
+            <SidebarMenu>{renderItem(dashboard)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {menuGroups.map((group) => (
+        {grupos.map((group) => (
           <SidebarGroup key={group.label} className="py-1">
             <SidebarGroupLabel className={groupLabelClass}>{group.label}</SidebarGroupLabel>
             <SidebarGroupContent>
@@ -81,12 +84,15 @@ function DashboardSidebar() {
         ))}
       </SidebarContent>
 
-      <SidebarSeparator className="mx-0" />
-
-      <SidebarFooter>
-        <SidebarGroupLabel className={groupLabelClass}>Configuración</SidebarGroupLabel>
-        <SidebarMenu>{configItems.map(renderItem)}</SidebarMenu>
-      </SidebarFooter>
+      {configuracion.length > 0 && (
+        <>
+          <SidebarSeparator className="mx-0" />
+          <SidebarFooter>
+            <SidebarGroupLabel className={groupLabelClass}>Configuración</SidebarGroupLabel>
+            <SidebarMenu>{configuracion.map(renderItem)}</SidebarMenu>
+          </SidebarFooter>
+        </>
+      )}
 
       <SidebarRail />
     </Sidebar>

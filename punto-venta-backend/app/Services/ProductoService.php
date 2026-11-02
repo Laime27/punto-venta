@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\TipoMovimientoEnum;
 use App\Models\HistorialMovimiento;
 use App\Models\Producto;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -39,7 +40,9 @@ class ProductoService
             });
         }
 
-        return $query->with('unidad:id,nombre,permite_decimales')->limit(10)->get(['id', 'nombre', 'precio_venta', 'precio_mayoreo','precio_compra', 'stock', 'codigo_barras', 'unidad_id', 'imagen']);
+        return $this->ocultarCosto(
+            $query->with('unidad:id,nombre,permite_decimales')->limit(10)->get(['id', 'nombre', 'precio_venta', 'precio_mayoreo','precio_compra', 'stock', 'codigo_barras', 'unidad_id', 'imagen'])
+        );
     }
 
     public function listarProductos($request)
@@ -64,7 +67,10 @@ class ProductoService
         }
 
         if ($request->search) {
-            $query->where('nombre', 'like', "%{$request->search}%")->orWhere('codigo_barras', 'like', "%{$request->search}%");
+            $query->where(function ($q) use ($request) {
+                $q->where('nombre', 'like', "%{$request->search}%")
+                  ->orWhere('codigo_barras', 'like', "%{$request->search}%");
+            });
         }
 
         $productos = $query->orderBy('id', 'desc')->paginate(10);
@@ -74,6 +80,13 @@ class ProductoService
             ROUND(SUM(stock * precio_venta), 2) as total_venta,
             ROUND(SUM(stock * (precio_venta - precio_compra)), 2) as utilidad_proyectada
         ")->first();
+
+        $this->ocultarCosto($productos->getCollection());
+
+        if (!$this->puedeVerCosto()) {
+            $stats->total_costo = null;
+            $stats->utilidad_proyectada = null;
+        }
 
         return [
             'productos' => $productos,
@@ -89,6 +102,7 @@ class ProductoService
 
         $proveedores = $datos['proveedores'] ?? [];
         unset($datos['proveedores']);
+        $datos = $this->sinCostoSiNoAutorizado($datos);
 
         $producto = DB::transaction(function () use ($datos, $proveedores) {
             $producto = Producto::create($datos);
@@ -111,7 +125,7 @@ class ProductoService
 
     public function obtenerPorId(int $id): Producto
     {
-        return Producto::with(['categoria', 'unidad', 'proveedores'])->findOrFail($id);
+        return $this->ocultarCosto(Producto::with(['categoria', 'unidad', 'proveedores'])->findOrFail($id));
     }
 
     public function actualizarProducto(int $id, array $datos, $imagen = null): Producto
@@ -124,6 +138,7 @@ class ProductoService
 
         $proveedores = $datos['proveedores'] ?? null;
         unset($datos['proveedores']);
+        $datos = $this->sinCostoSiNoAutorizado($datos);
 
         if (array_key_exists('codigo_barras', $datos) && blank($datos['codigo_barras'])) {
             $datos['codigo_barras'] = $producto->codigo_barras ?: $this->codigoBarrasService->generar($producto->id);
@@ -144,6 +159,25 @@ class ProductoService
         });
 
         return $producto->load(['categoria', 'unidad', 'proveedores']);
+    }
+
+    private function puedeVerCosto(): bool
+    {
+        return (bool) Auth::user()?->can('producto.ver_costo');
+    }
+
+    private function ocultarCosto(Producto|EloquentCollection $productos): Producto|EloquentCollection
+    {
+        return $this->puedeVerCosto() ? $productos : $productos->makeHidden('precio_compra');
+    }
+
+    private function sinCostoSiNoAutorizado(array $datos): array
+    {
+        if (!$this->puedeVerCosto()) {
+            unset($datos['precio_compra']);
+        }
+
+        return $datos;
     }
 
     private function registrarCambioStock(Producto $producto, float $stockAnterior, float $stockNuevo, TipoMovimientoEnum $tipo, string $observacion): void
