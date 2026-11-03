@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,13 +8,17 @@ import type { CotizacionPayload } from "../../types/CotizacionType";
 import { useCotizacionDetalles } from "./useCotizacionDetalles";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/errorHandler";
-import { cotizacionFormSchema, type CotizacionFormData } from "../../validations/CotizacionValidation";
-
-const hoy = () => new Date().toISOString().split("T")[0];
+import { useFechaHoyEmpresa } from "@/features/empresa/hooks/useFechaHoyEmpresa";
+import {
+  cotizacionFormSchema,
+  totalesCotizacionSchema,
+  type CotizacionFormData,
+} from "../../validations/CotizacionValidation";
 
 export const useCotizacionCrear = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const hoy = useFechaHoyEmpresa();
   const {
     detalles,
     agregarProducto,
@@ -30,12 +35,18 @@ export const useCotizacionCrear = () => {
     resolver: zodResolver(cotizacionFormSchema),
     defaultValues: {
       cliente_id: undefined,
-      fecha_emision: hoy(),
+      fecha_emision: hoy,
       fecha_vencimiento: undefined,
       observaciones: undefined,
       descuento_global: 0,
     },
   });
+
+  useEffect(() => {
+    if (!form.getFieldState("fecha_emision", form.formState).isDirty) {
+      form.setValue("fecha_emision", hoy);
+    }
+  }, [hoy, form]);
 
   const { mutateAsync: mutateCrear, isPending: enviando } = useMutation({
     mutationFn: crearCotizacion,
@@ -50,8 +61,14 @@ export const useCotizacionCrear = () => {
   });
 
   const onSubmit = async (headerData: CotizacionFormData) => {
-    if (detalles.length === 0) {
-      toast.error("Debe agregar al menos un producto");
+    const validacion = totalesCotizacionSchema.safeParse({
+      detalles,
+      total: calcularTotal(),
+      descuento_global: headerData.descuento_global ?? 0,
+    });
+
+    if (!validacion.success) {
+      toast.error(validacion.error.issues[0].message);
       return;
     }
     

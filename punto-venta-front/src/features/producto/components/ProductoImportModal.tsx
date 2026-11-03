@@ -19,6 +19,7 @@ export function ProductoImportModal({ importHook }: ProductoImportModalProps) {
       manejarSoltar,
       manejarCambioInput,
       removerArchivo,
+      descargarPlantilla,
     },
   } = importHook;
 
@@ -108,14 +109,14 @@ const anchoModal = modoCorreccion || tieneErroresFilas
               )}
             </div>
 
-            <a
-              href="/Plantilla_Productos.xlsx"
-              download="Plantilla_Productos.xlsx"
-              className="text-primary hover:text-primary/80 text-sm font-medium underline-offset-4 hover:underline flex items-center justify-center gap-2 mt-4"
+            <button
+              type="button"
+              onClick={descargarPlantilla}
+              className="w-full cursor-pointer text-primary hover:text-primary/80 text-sm font-medium underline-offset-4 hover:underline flex items-center justify-center gap-2 mt-4"
             >
               <Download className="h-4 w-4" />
               Descargar plantilla de ejemplo
-            </a>
+            </button>
           </>
         )}
 

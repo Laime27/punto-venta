@@ -1,5 +1,6 @@
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { useKardexHook } from "../hooks/useKardexHook";
 import { KardexEncabezado } from "../components/KardexEncabezado";
 import { KardexFiltros } from "../components/KardexFiltros";
@@ -30,15 +31,30 @@ export default function KardexPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <KardexEncabezado
-        producto={estado.producto}
-        exportando={estado.exportando}
-        onExportar={funciones.exportar}
-        onVolver={funciones.volver}
+      <Card>
+        <CardContent className="space-y-5 p-5">
+          <KardexEncabezado
+            producto={estado.producto}
+            exportando={estado.exportando}
+            onExportar={funciones.exportar}
+            onVolver={funciones.volver}
+          />
+          <div className="border-t pt-5">
+            <KardexFiltros filtros={filtros} />
+          </div>
+        </CardContent>
+      </Card>
+      <KardexResumen
+        resumen={estado.resumen}
+        filtros={filtros.valores}
+        abreviatura={estado.producto.unidad?.abreviatura}
       />
-      <KardexFiltros filtros={filtros} />
-      <KardexResumen resumen={estado.resumen} abreviatura={estado.producto.unidad?.abreviatura} />
-      <KardexTabla movimientos={estado.movimientos} isLoading={estado.isFetching} paginacion={paginacion} />
+      <KardexTabla
+        movimientos={estado.movimientos}
+        isLoading={estado.isFetching}
+        hayFiltros={filtros.tieneFiltrosActivos}
+        paginacion={paginacion}
+      />
     </div>
   );
 }

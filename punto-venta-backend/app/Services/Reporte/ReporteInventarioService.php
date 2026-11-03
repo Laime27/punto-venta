@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class ReporteInventarioService
 {
     private const LIMITE_TOP = 10;
-    private const FACTOR_POR_AGOTARSE = 1.5;
+    public const FACTOR_POR_AGOTARSE = 1.5;
 
     public function inventario(array $filtros): array
     {
@@ -45,6 +45,16 @@ class ReporteInventarioService
                 ->get()
                 ->map(fn($fila) => $this->mapearProducto($fila)),
         ];
+    }
+
+    public function productosConStockBajo(int $limite): Collection
+    {
+        return $this->listadoProductos(['solo_stock_bajo' => true])
+            ->reorder()
+            ->orderByRaw('productos.stock - productos.stock_minimo')
+            ->limit($limite)
+            ->get()
+            ->map(fn ($fila) => $this->mapearProducto($fila));
     }
 
     public function productosPaginados(array $filtros): LengthAwarePaginator

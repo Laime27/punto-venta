@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { AppPagination } from "@/components/AppPagination";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import {
   Table,
   TableHead,
@@ -16,7 +17,7 @@ import { Puede } from "@/features/auth/components/Puede";
 
 export function OrdenCompraTable() {
   const navigate = useNavigate();
-  const { data, pagination } = useOrdenCompraListar();
+  const { data, pagination, anulacion } = useOrdenCompraListar();
 
   return (
     <div className="space-y-4">
@@ -54,6 +55,7 @@ export function OrdenCompraTable() {
             isLoading={data.isLoading}
             ordenesCompra={data.ordenesCompra}
             page={pagination.page}
+            onAnular={anulacion.abrir}
           />
           </Table>
 
@@ -67,6 +69,15 @@ export function OrdenCompraTable() {
           </div>
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={anulacion.abierto}
+        onClose={anulacion.cerrar}
+        onConfirm={anulacion.confirmar}
+        title="¿Anular esta orden de compra?"
+        confirmLabel="Sí, anular"
+        cancelLabel="Volver"
+      />
     </div>
   );
 }

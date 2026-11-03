@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\OrdenCompraRequest;
+use App\Http\Requests\RecibirOrdenCompraRequest;
 use App\Services\OrdenCompra\OrdenCompraService;
 use App\Services\OrdenCompra\RecibirOrdenCompraService;
-use Illuminate\Http\Request;
 
 class OrdenCompraController extends Controller
 {
@@ -35,10 +35,15 @@ class OrdenCompraController extends Controller
         return response()->json($ordenCompra, 200);
     }
 
-    public function recibir(Request $request, $id)
+    public function recibir(RecibirOrdenCompraRequest $request, $id)
     {
-        $ordenCompra = $this->recibirOrdenCompraService->recibir($id, $request->all());
+        $ordenCompra = $this->recibirOrdenCompraService->recibir($id, $request->validated());
         return response()->json($ordenCompra, 200);
+    }
+
+    public function anular($id)
+    {
+        return response()->json($this->ordenCompraService->anular($id));
     }
 
     public function show($id)

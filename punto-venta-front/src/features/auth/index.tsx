@@ -1,4 +1,3 @@
-import { Command } from "lucide-react";
 import { AuthForm } from './components/AuthForm';
 
 export default function Auth() {
@@ -9,19 +8,9 @@ export default function Auth() {
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{ 
-            backgroundImage: 'url("https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop")' 
-          }} 
+            backgroundImage: 'url("/login.svg")'
+          }}
         />
-        
-        <div className="absolute inset-0 bg-zinc-900/60" />
-
-        <div className="relative z-20 flex items-center text-lg font-medium tracking-tight">
-          <div className="mr-2 flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <Command className="h-5 w-5" />
-          </div>
-          Nucleus SaaS
-        </div>
-
       </div>
 
       <div className="flex items-center justify-center p-8">

@@ -13,10 +13,11 @@ import { useCotizacionListar } from "../../hooks/general/useCotizacionListar";
 import { CotizacionTableBody } from "./CotizacionTableBody";
 import { Card, CardContent } from "@/components/ui/card";
 import { Puede } from "@/features/auth/components/Puede";
+import { CotizacionFilters } from "./CotizacionFilters";
 
 export function CotizacionTable() {
   const navigate = useNavigate();
-  const { data, pagination } = useCotizacionListar();
+  const { data, pagination, filtros } = useCotizacionListar();
 
   return (
     <div className="space-y-4">
@@ -34,6 +35,8 @@ export function CotizacionTable() {
           </Button>
         </Puede>
       </div>
+
+      <CotizacionFilters filtros={filtros} />
 
       <Card>
         <CardContent className="p-0">

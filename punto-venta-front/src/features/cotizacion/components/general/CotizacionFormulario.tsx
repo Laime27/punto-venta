@@ -107,6 +107,7 @@ export function CotizacionFormulario({
                         <Input
                           type="number"
                           min={0}
+                          step="0.01"
                           value={detalle.descuento_unitario ?? 0}
                           onChange={(e) => funciones.actualizarDescuento(index, Number(e.target.value))}
                           onFocus={(e) => e.target.select()}

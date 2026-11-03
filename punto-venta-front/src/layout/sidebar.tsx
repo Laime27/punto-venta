@@ -1,7 +1,6 @@
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -10,11 +9,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-  SidebarSeparator,
 } from "@/components/ui/sidebar"
 
 import { Link, useLocation } from "react-router-dom"
+import { ChevronDown } from "lucide-react"
 import { type MenuItemsProps } from "./sidebarItems"
+import { useIndicadorScroll } from "./hooks/useIndicadorScroll"
 import { useSidebarMenu } from "./hooks/useSidebarMenu"
 
 const itemClass =
@@ -27,6 +27,7 @@ const groupLabelClass = "text-[11px] font-semibold uppercase tracking-wider text
 function DashboardSidebar() {
   const location = useLocation()
   const { puntoVenta, dashboard, grupos, configuracion } = useSidebarMenu()
+  const { contenedorRef, hayMasAbajo, bajar } = useIndicadorScroll(grupos)
 
   const isActive = (url: string) =>
     location.pathname === url || location.pathname.startsWith(`${url}/`)
@@ -67,32 +68,47 @@ function DashboardSidebar() {
         )}
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>{renderItem(dashboard)}</SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {grupos.map((group) => (
-          <SidebarGroup key={group.label} className="py-1">
-            <SidebarGroupLabel className={groupLabelClass}>{group.label}</SidebarGroupLabel>
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <SidebarContent ref={contenedorRef} className="sidebar-scroll mb-8">
+          <SidebarGroup>
             <SidebarGroupContent>
-              <SidebarMenu>{group.items.map(renderItem)}</SidebarMenu>
+              <SidebarMenu>{renderItem(dashboard)}</SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-        ))}
-      </SidebarContent>
 
-      {configuracion.length > 0 && (
-        <>
-          <SidebarSeparator className="mx-0" />
-          <SidebarFooter>
-            <SidebarGroupLabel className={groupLabelClass}>Configuración</SidebarGroupLabel>
-            <SidebarMenu>{configuracion.map(renderItem)}</SidebarMenu>
-          </SidebarFooter>
-        </>
-      )}
+          {grupos.map((group) => (
+            <SidebarGroup key={group.label} className="py-1">
+              <SidebarGroupLabel className={groupLabelClass}>{group.label}</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>{group.items.map(renderItem)}</SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          ))}
+
+          {configuracion.length > 0 && (
+            <SidebarGroup className="py-1">
+              <SidebarGroupLabel className={groupLabelClass}>Configuración</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>{configuracion.map(renderItem)}</SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          )}
+        </SidebarContent>
+
+        {hayMasAbajo && (
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-14 items-end justify-center bg-gradient-to-t from-sidebar to-transparent pb-1">
+            <button
+              type="button"
+              onClick={bajar}
+              aria-label="Ver más módulos"
+              title="Ver más módulos"
+              className="pointer-events-auto cursor-pointer rounded-full bg-sidebar-accent p-1 text-sidebar-accent-foreground transition-colors hover:bg-sidebar-primary hover:text-sidebar-primary-foreground"
+            >
+              <ChevronDown className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+      </div>
 
       <SidebarRail />
     </Sidebar>

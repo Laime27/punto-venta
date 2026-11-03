@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\Telefono;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ProveedorRequest extends FormRequest
@@ -17,7 +18,7 @@ class ProveedorRequest extends FormRequest
         return [
             'nombre'    => ['required', 'string', 'max:255'],
             'correo'    => ['nullable', 'email', 'max:255', 'unique:proveedores,correo,' . $id],
-            'telefono'  => ['nullable', 'string', 'max:255'],
+            'telefono'  => ['nullable', 'string', new Telefono],
             'direccion' => ['nullable', 'string', 'max:255'],
             'nota'      => ['nullable', 'string', 'max:255'],
         ];

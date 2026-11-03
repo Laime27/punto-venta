@@ -2,9 +2,12 @@ import { useState, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { toast } from "sonner";
-import { importarProductos } from "../services/ProductoService";
+import { importarProductos, obtenerPlantillaProductos } from "../services/ProductoService";
 import { getErrorMessage } from "@/lib/errorHandler";
+import { descargarArchivo } from "@/lib/utils";
 import type { ErrorImportacionType, ErrorFilaExcelType, FilaExcelType } from "../types/ProductoType";
+
+const NOMBRE_PLANTILLA = "Plantilla_Productos.xlsx";
 
 export const useProductoImportHook = () => {
   const queryClient = useQueryClient();
@@ -60,6 +63,14 @@ export const useProductoImportHook = () => {
     setModalAbierto(true);
   };
   
+  const descargarPlantilla = async () => {
+    try {
+      await descargarArchivo(await obtenerPlantillaProductos(), NOMBRE_PLANTILLA);
+    } catch (error) {
+      toast.error(getErrorMessage(error, "No se pudo descargar la plantilla"));
+    }
+  };
+
   const cerrarModal = () => {
     setArchivo(null);
     setErrorImportacion(null);
@@ -122,6 +133,7 @@ export const useProductoImportHook = () => {
       manejarSoltar,
       manejarCambioInput,
       removerArchivo,
+      descargarPlantilla,
       limpiarError: () => setErrorImportacion(null),
     },
   };

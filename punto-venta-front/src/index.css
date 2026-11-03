@@ -224,6 +224,16 @@
   }
 }
 
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--sidebar-foreground) 45%, transparent) transparent;
+  overflow-x: hidden;
+}
+
+[data-collapsible="icon"] .sidebar-scroll {
+  scrollbar-width: none;
+}
+
 .error-validation {
   @apply text-destructive text-xs;
 }

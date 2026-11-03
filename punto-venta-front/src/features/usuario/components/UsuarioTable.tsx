@@ -67,7 +67,10 @@ export function UsuarioTable() {
               {!datos.isLoading && datos.usuarios.map((usuario) => (
                 <TableRow key={usuario.id} className={usuario.activo ? "" : "opacity-60"}>
                   <TableCell>
-                    <p className="font-medium">{usuario.name}</p>
+                    <p className="flex items-center gap-2 font-medium">
+                      {usuario.name}
+                      {usuario.es_dueno && <Badge variant="outline">Dueño</Badge>}
+                    </p>
                     <p className="text-xs text-muted-foreground">{usuario.email}</p>
                   </TableCell>
                   <TableCell>
@@ -78,13 +81,20 @@ export function UsuarioTable() {
                     <Switch
                       checked={Boolean(usuario.activo)}
                       onCheckedChange={() => estado.cambiar(usuario.id)}
-                      disabled={!puede("usuario.desactivar") || usuario.id === usuarioActual?.id || estado.cambiando}
-                      title={usuario.id === usuarioActual?.id ? "No puedes desactivar tu propio usuario" : undefined}
+                      disabled={!puede("usuario.desactivar") || usuario.es_dueno || usuario.id === usuarioActual?.id || estado.cambiando}
+                      title={usuario.es_dueno ? "El dueño del sistema no se puede desactivar" : undefined}
                     />
                   </TableCell>
                   <TableCell className="text-center">
                     <Puede permiso="usuario.editar">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600" onClick={() => modal.abrirEdicion(usuario)} title="Editar">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-blue-600"
+                        onClick={() => modal.abrirEdicion(usuario)}
+                        disabled={usuario.es_dueno && usuario.id !== usuarioActual?.id}
+                        title={usuario.es_dueno && usuario.id !== usuarioActual?.id ? "Solo el dueño puede modificar su cuenta" : "Editar"}
+                      >
                         <Pencil className="h-4 w-4" />
                       </Button>
                     </Puede>

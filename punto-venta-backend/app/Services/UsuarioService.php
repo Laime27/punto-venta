@@ -44,10 +44,19 @@ class UsuarioService
         });
     }
 
-    public function actualizar(int $id, array $datos): array
+    public function actualizar(int $id, array $datos, int $usuarioActualId): array
     {
         $usuario = User::with('roles')->findOrFail($id);
+
+        if ($usuario->is_admin && $usuario->id !== $usuarioActualId) {
+            throw new BusinessException('Solo el dueño del sistema puede modificar su propia cuenta.');
+        }
+
         $rolNuevo = Rol::findOrFail($datos['rol_id']);
+
+        if ($usuario->is_admin && !$rolNuevo->esAdministrador()) {
+            throw new BusinessException('El rol del dueño del sistema no se puede cambiar.');
+        }
 
         if ($usuario->esAdministrador() && !$rolNuevo->esAdministrador()) {
             $this->validarQuedaOtroAdministrador($usuario);
@@ -72,6 +81,10 @@ class UsuarioService
 
         if ($usuario->id === $usuarioActualId) {
             throw new BusinessException('No puedes desactivar tu propio usuario.');
+        }
+
+        if ($usuario->is_admin) {
+            throw new BusinessException('El dueño del sistema no se puede desactivar.');
         }
 
         if ($usuario->activo && $usuario->esAdministrador()) {
@@ -108,6 +121,7 @@ class UsuarioService
             'name' => $usuario->name,
             'email' => $usuario->email,
             'activo' => $usuario->activo,
+            'es_dueno' => $usuario->is_admin,
             'rol' => $rol ? ['id' => $rol->id, 'nombre' => $rol->name] : null,
             'created_at' => $usuario->created_at?->toDateTimeString(),
         ];

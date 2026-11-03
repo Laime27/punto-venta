@@ -17,15 +17,16 @@ export function KardexEncabezado({ producto, exportando, onExportar, onVolver }:
         <ArrowLeft className="h-5 w-5" />
       </Button>
       <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Kardex del producto</p>
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl font-bold tracking-tight truncate">Kardex: {producto.nombre}</h1>
+          <h1 className="text-2xl font-bold tracking-tight truncate">{producto.nombre}</h1>
           {producto.deleted_at && <Badge variant="destructive">Eliminado</Badge>}
         </div>
         <p className="text-sm text-muted-foreground">
           {[
-            producto.codigo_barras,
+            producto.codigo_barras ? `Código ${producto.codigo_barras}` : null,
             producto.categoria?.nombre,
-            producto.unidad ? `Unidad: ${producto.unidad.nombre}` : null,
+            producto.unidad?.nombre,
           ]
             .filter(Boolean)
             .join(" · ")}

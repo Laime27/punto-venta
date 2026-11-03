@@ -23,6 +23,11 @@ export const recibirOrdenCompra = async (id: number, payload: OrdenCompraRecibir
   return data;
 };
 
+export const anularOrdenCompra = async (id: number) => {
+  const { data } = await axios.post(`${BASE}/${id}/anular`);
+  return data;
+};
+
 export const actualizarOrdenCompra = async (id: number, payload: OrdenCompraCreatePayload) => {
   const { data } = await axios.put(`${BASE}/${id}`, payload);
   return data;

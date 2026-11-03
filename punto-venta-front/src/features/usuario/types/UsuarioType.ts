@@ -3,6 +3,7 @@ export interface UsuarioType {
   name: string;
   email: string;
   activo?: boolean;
+  es_dueno?: boolean;
   rol?: { id: number; nombre: string } | null;
   created_at?: string;
 }

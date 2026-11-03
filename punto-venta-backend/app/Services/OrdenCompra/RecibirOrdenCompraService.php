@@ -18,7 +18,7 @@ class RecibirOrdenCompraService
         return DB::transaction(function () use ($id, $data) {
             $ordenCompra = OrdenCompra::with('detalles')->lockForUpdate()->findOrFail($id);
 
-            if ($ordenCompra->estado === EstadoOrdenCompraEnum::ANULADA->value) {
+            if (in_array($ordenCompra->estado, [EstadoOrdenCompraEnum::ANULADA->value, EstadoOrdenCompraEnum::RECIBIDA_COMPLETA->value])) {
                 throw new BusinessException("La orden de compra no puede ser recibida en su estado actual.");
             }
 
@@ -28,37 +28,58 @@ class RecibirOrdenCompraService
                 ->get()
                 ->keyBy('id');
 
-            $totalReal = 0;
-            $todasCompletas = true;
+            $huboRecepcion = false;
 
-            foreach ($data['detalles'] ?? [] as $itemRecibido) {
-                $detalle = $ordenCompra->detalles->where('id', $itemRecibido['id'])->first();
-                
-                if ($detalle) {
-                    $cantidadAIncrementar = $itemRecibido['cantidad_recibida'] - $detalle->cantidad_recibida;
-                    $detalle->cantidad_recibida = $itemRecibido['cantidad_recibida'];
-                    $detalle->subtotal = $detalle->cantidad_recibida * $detalle->precio_unitario;
-                    $detalle->save();
+            foreach ($data['detalles'] as $itemRecibido) {
+                $detalle = $ordenCompra->detalles->firstWhere('id', $itemRecibido['id']);
 
-                    $totalReal += $detalle->subtotal;
-
-                    if ($detalle->cantidad_recibida < $detalle->cantidad_pedida) {
-                        $todasCompletas = false;
-                    }
-
-                    if ($cantidadAIncrementar > 0) {
-                        $this->actualizarStockHistorial($productos->get($detalle->producto_id), $detalle, $cantidadAIncrementar, $ordenCompra->id);
-                    }
+                if (!$detalle) {
+                    throw new BusinessException("Uno de los productos no pertenece a esta orden de compra.");
                 }
+
+                $cantidadAIncrementar = $this->validarCantidad($detalle, $productos->get($detalle->producto_id), (float) $itemRecibido['cantidad_recibida']);
+
+                if ($cantidadAIncrementar <= 0) {
+                    continue;
+                }
+
+                $huboRecepcion = true;
+                $detalle->cantidad_recibida = (float) $itemRecibido['cantidad_recibida'];
+                $detalle->subtotal = $detalle->cantidad_recibida * $detalle->precio_unitario;
+                $detalle->save();
+
+                $this->actualizarStockHistorial($productos->get($detalle->producto_id), $detalle, $cantidadAIncrementar, $ordenCompra->id);
             }
 
-            $ordenCompra->total_real = $totalReal;
+            if (!$huboRecepcion) {
+                throw new BusinessException("Ingresa al menos una cantidad mayor a la ya recibida.");
+            }
+
+            $todasCompletas = $ordenCompra->detalles->every(fn ($detalle) => (float) $detalle->cantidad_recibida >= (float) $detalle->cantidad_pedida);
+
+            $ordenCompra->total_real = $ordenCompra->detalles->sum(fn ($detalle) => (float) $detalle->cantidad_recibida * (float) $detalle->precio_unitario);
             $ordenCompra->estado = $todasCompletas ? EstadoOrdenCompraEnum::RECIBIDA_COMPLETA->value : EstadoOrdenCompraEnum::RECIBIDA_PARCIAL->value;
             $ordenCompra->fecha_recepcion = now();
             $ordenCompra->save();
 
             return $ordenCompra->load('detalles.producto');
         });
+    }
+
+    private function validarCantidad($detalle, Producto $producto, float $cantidadRecibida): float
+    {
+        $yaRecibido = (float) $detalle->cantidad_recibida;
+        $pedido = (float) $detalle->cantidad_pedida;
+
+        if ($cantidadRecibida < $yaRecibido) {
+            throw new BusinessException("La cantidad de {$producto->nombre} no puede ser menor a lo ya recibido ({$yaRecibido}).");
+        }
+
+        if ($cantidadRecibida > $pedido) {
+            throw new BusinessException("La cantidad de {$producto->nombre} no puede superar lo pedido ({$pedido}).");
+        }
+
+        return round($cantidadRecibida - $yaRecibido, 2);
     }
 
     private function actualizarStockHistorial(Producto $producto, $detalle, $cantidadAIncrementar, $ordenCompraId)

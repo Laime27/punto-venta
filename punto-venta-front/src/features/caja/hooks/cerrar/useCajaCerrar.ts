@@ -8,7 +8,7 @@ import { cerrarCaja, obtenerResumenCaja } from "../../services/CajaService";
 import { CerrarCajaSchema, type CerrarCajaFormData } from "../../validations/CajaValidation";
 import type { CajaCierreResultado, CajaResumen } from "../../types/CajaType";
 
-const VALORES_INICIALES: CerrarCajaFormData = { monto_real: 0, observaciones: "" };
+const VALORES_INICIALES: Partial<CerrarCajaFormData> = { monto_real: undefined, observaciones: "" };
 
 export const useCajaCerrar = (cajaId: number) => {
   const queryClient = useQueryClient();
@@ -29,8 +29,9 @@ export const useCajaCerrar = (cajaId: number) => {
   });
 
   const montoIngresado = useWatch({ control: form.control, name: "monto_real" });
-  const montoReal = Number.isFinite(montoIngresado) ? montoIngresado : 0;
-  const diferencia = Number((montoReal - (resumen?.saldo_teorico ?? 0)).toFixed(2));
+  const diferencia = Number.isFinite(montoIngresado)
+    ? Number((montoIngresado - (resumen?.saldo_teorico ?? 0)).toFixed(2))
+    : null;
 
   const mutation = useMutation({
     mutationFn: (values: CerrarCajaFormData) =>
@@ -55,7 +56,6 @@ export const useCajaCerrar = (cajaId: number) => {
       form.reset(VALORES_INICIALES);
       setResultado(null);
     } else if (resultado) {
-      // Se refresca al cerrar el modal para no desmontar la vista del resultado.
       queryClient.invalidateQueries({ queryKey: ["caja"] });
     }
     setAbierto(valor);

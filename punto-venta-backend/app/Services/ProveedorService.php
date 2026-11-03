@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\BusinessException;
 use App\Models\Proveedor;
 
 class ProveedorService
@@ -43,6 +44,11 @@ class ProveedorService
     public function eliminarProveedor(int $id)
     {
         $proveedor = Proveedor::findOrFail($id);
+
+        if ($proveedor->ordenesCompra()->exists()) {
+            throw new BusinessException("No se puede eliminar a {$proveedor->nombre} porque tiene órdenes de compra registradas.");
+        }
+
         return $proveedor->delete();
     }
 }

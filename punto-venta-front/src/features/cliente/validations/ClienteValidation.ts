@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { FORMATO_TELEFONO, MENSAJE_TELEFONO_INVALIDO } from "@/lib/constants";
 
 export const ClienteSchema = z.object({
   nombre: z.string().min(1, "El nombre es obligatorio"),
@@ -8,7 +9,12 @@ export const ClienteSchema = z.object({
     .or(z.literal(""))
     .nullable()
     .optional(),
-  telefono: z.string().nullable().optional(),
+  telefono: z
+    .string()
+    .regex(FORMATO_TELEFONO, MENSAJE_TELEFONO_INVALIDO)
+    .or(z.literal(""))
+    .nullable()
+    .optional(),
   direccion: z.string().nullable().optional(),
   nota: z
     .string()

@@ -19,6 +19,11 @@ export function useAnularComprobante({
   const [estaEnviando, setEstaEnviando] = useState(false);
   const queryClient = useQueryClient();
 
+  const pagos = comprobante?.pagos ?? [];
+  const totalPagado = pagos.reduce((total, pago) => total + Number(pago.monto), 0);
+  const montoADevolver = Math.min(totalPagado, Number(comprobante?.total ?? 0));
+  const metodosDevolucion = [...new Set(pagos.map((pago) => pago.metodo_pago?.nombre).filter(Boolean))].join(", ");
+
   const cerrarModal = () => {
     if (estaEnviando) return;
     setMotivo("");
@@ -63,6 +68,8 @@ export function useAnularComprobante({
     motivo,
     setMotivo,
     estaEnviando,
+    montoADevolver,
+    metodosDevolucion,
     cerrarModal,
     confirmarAnulacion,
   };

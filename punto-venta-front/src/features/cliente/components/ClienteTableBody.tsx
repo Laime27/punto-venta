@@ -101,19 +101,21 @@ export function ClienteTableBody({
                   <Pencil className="h-4 w-4" />
                 </Button>
               </Puede>
-              <Puede permiso="cliente.eliminar">
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-8 w-8 text-destructive"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onDelete(cliente.id)
-                  }}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </Puede>
+              {!cliente.es_sistema && (
+                <Puede permiso="cliente.eliminar">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 text-destructive"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onDelete(cliente.id)
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </Puede>
+              )}
             </div>
           </TableCell>
         </TableRow>

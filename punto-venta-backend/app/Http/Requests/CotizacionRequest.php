@@ -25,7 +25,15 @@ class CotizacionRequest extends FormRequest
             'detalles.*.producto_id' => 'required|exists:productos,id',
             'detalles.*.cantidad' => 'required|numeric|min:0.01',
             'detalles.*.precio_unitario' => 'required|numeric|min:0',
-            'detalles.*.descuento_unitario' => 'nullable|numeric|min:0',
+            'detalles.*.descuento_unitario' => 'nullable|numeric|min:0|lte:detalles.*.precio_unitario',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'fecha_vencimiento.after_or_equal' => 'La fecha de vencimiento no puede ser anterior a la fecha de emisión.',
+            'detalles.*.descuento_unitario.lte' => 'El descuento unitario no puede ser mayor al precio del producto.',
         ];
     }
 }

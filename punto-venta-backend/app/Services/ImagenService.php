@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 
 class ImagenService
@@ -12,10 +11,6 @@ class ImagenService
 
     public function guardar(UploadedFile $archivo, string $carpeta = 'productos'): string
     {
-        if (!file_exists(public_path('storage'))) {
-            Artisan::call('storage:link');
-        }
-
         $ruta = $archivo->store($carpeta, $this->disco);
         return Storage::disk($this->disco)->url($ruta);
     }

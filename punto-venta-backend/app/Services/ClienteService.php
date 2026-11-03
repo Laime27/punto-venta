@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
+use App\Enums\EstadoComprobanteEnum;
+use App\Exceptions\BusinessException;
 use App\Models\Cliente;
+use App\Models\ComprobanteCredito;
 
 class ClienteService
 {
@@ -43,6 +46,21 @@ class ClienteService
     public function eliminarCliente(int $id)
     {
         $cliente = Cliente::findOrFail($id);
+
+        if ($cliente->es_sistema) {
+            throw new BusinessException("El cliente genérico del sistema no se puede eliminar.");
+        }
+
+        $deuda = (float) ComprobanteCredito::where('saldo_pendiente', '>', 0)
+            ->whereHas('comprobante', fn ($query) => $query
+                ->where('cliente_id', $cliente->id)
+                ->where('estado', '!=', EstadoComprobanteEnum::ANULADO->value))
+            ->sum('saldo_pendiente');
+
+        if ($deuda > 0) {
+            throw new BusinessException("No se puede eliminar a {$cliente->nombre} porque tiene una deuda pendiente de {$deuda}.");
+        }
+
         return $cliente->delete();
     }
 

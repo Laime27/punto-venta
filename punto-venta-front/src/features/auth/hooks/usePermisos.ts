@@ -3,6 +3,8 @@ import type { Permiso } from "../types/AuthType";
 
 export type RequisitoPermiso = Permiso | Permiso[];
 
+const ROL_ADMINISTRADOR = "Administrador";
+
 export const usePermisos = () => {
   const { sesion } = useVerificarSesion();
   const permisos = new Set<Permiso>(sesion?.permisos ?? []);
@@ -16,6 +18,7 @@ export const usePermisos = () => {
   return {
     usuario: sesion?.user ?? null,
     rol: sesion?.rol ?? null,
+    esAdministrador: sesion?.rol === ROL_ADMINISTRADOR,
     puede,
   };
 };

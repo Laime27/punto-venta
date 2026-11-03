@@ -78,6 +78,21 @@ class OrdenCompraService
         });
     }
 
+    public function anular(int $id): OrdenCompra
+    {
+        return DB::transaction(function () use ($id) {
+            $ordenCompra = OrdenCompra::lockForUpdate()->findOrFail($id);
+
+            if ($ordenCompra->estado !== EstadoOrdenCompraEnum::PENDIENTE->value) {
+                throw new BusinessException("Solo se pueden anular órdenes de compra en estado PENDIENTE.");
+            }
+
+            $ordenCompra->update(['estado' => EstadoOrdenCompraEnum::ANULADA->value]);
+
+            return $ordenCompra;
+        });
+    }
+
     public function mostrar($id)
     {
         return OrdenCompra::with(['proveedor', 'user', 'detalles.producto'])->findOrFail($id);

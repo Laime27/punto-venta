@@ -1,6 +1,6 @@
 import { TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ArrowDownToLine, Eye, Pencil } from "lucide-react";
+import { ArrowDownToLine, Ban, Eye, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useMonedaHook } from "@/features/empresa/hooks/useMonedaHook";
 import { type OrdenCompraType } from "../../types/OrdenCompraType";
@@ -11,9 +11,10 @@ interface Props {
   isLoading: boolean;
   ordenesCompra: OrdenCompraType[];
   page: number;
+  onAnular: (id: number) => void;
 }
 
-export function OrdenCompraTableBody({ isLoading, ordenesCompra, page }: Props) {
+export function OrdenCompraTableBody({ isLoading, ordenesCompra, page, onAnular }: Props) {
   const { simbolo } = useMonedaHook();
   const navigate = useNavigate();
   if (isLoading) {
@@ -82,7 +83,20 @@ export function OrdenCompraTableBody({ isLoading, ordenesCompra, page }: Props) 
                     </Button>
                   </Puede>
                 )}
-                {orden.estado !== "RECIBIDA_COMPLETA" && (
+                {orden.estado === "PENDIENTE" && (
+                  <Puede permiso="orden_compra.editar">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive"
+                      onClick={() => onAnular(orden.id)}
+                      title="Anular"
+                    >
+                      <Ban className="h-4 w-4" />
+                    </Button>
+                  </Puede>
+                )}
+                {!["RECIBIDA_COMPLETA", "ANULADA"].includes(orden.estado) && (
                   <Puede permiso="orden_compra.recibir">
                     <Button
                       variant="ghost"

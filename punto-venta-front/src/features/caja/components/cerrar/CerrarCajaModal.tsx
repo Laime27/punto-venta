@@ -88,10 +88,12 @@ export function CerrarCajaModal({ cajaId, trigger }: Props) {
                 {errors.monto_real && <p className="text-sm text-destructive">{errors.monto_real.message}</p>}
               </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-bold">Diferencia</span>
-                <CajaDiferenciaBadge diferencia={diferencia} mostrarEtiqueta />
-              </div>
+              {diferencia !== null && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold">Diferencia</span>
+                  <CajaDiferenciaBadge diferencia={diferencia} mostrarEtiqueta />
+                </div>
+              )}
 
               <div className="space-y-1">
                 <Label htmlFor="observaciones_cierre">Observaciones</Label>
@@ -123,10 +125,12 @@ export function CerrarCajaModal({ cajaId, trigger }: Props) {
               Una vez cerrada no podrás registrar más ventas ni movimientos en esta caja.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-semibold">Diferencia del arqueo</span>
-            <CajaDiferenciaBadge diferencia={diferencia} mostrarEtiqueta />
-          </div>
+          {diferencia !== null && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-semibold">Diferencia del arqueo</span>
+              <CajaDiferenciaBadge diferencia={diferencia} mostrarEtiqueta />
+            </div>
+          )}
           <AlertDialogFooter>
             <AlertDialogCancel disabled={estaEnviando}>Cancelar</AlertDialogCancel>
             <AlertDialogAction

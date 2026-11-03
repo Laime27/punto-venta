@@ -7,7 +7,16 @@ interface Props {
   children: ReactNode;
 }
 
+interface AdministradorProps {
+  children: ReactNode;
+}
+
 export function PermisoRoute({ permiso, children }: Props) {
   const { puede } = usePermisos();
   return <>{puede(permiso) ? children : <SinAcceso />}</>;
+}
+
+export function AdministradorRoute({ children }: AdministradorProps) {
+  const { esAdministrador } = usePermisos();
+  return <>{esAdministrador ? children : <SinAcceso />}</>;
 }

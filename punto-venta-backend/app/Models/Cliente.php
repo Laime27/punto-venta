@@ -13,6 +13,10 @@ class Cliente extends Model
     protected $table = 'clientes';
     protected $guarded = [];
 
+    protected $casts = [
+        'es_sistema' => 'boolean',
+    ];
+
     public function comprobantes()
     {
         return $this->hasMany(Comprobante::class);

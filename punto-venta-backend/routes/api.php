@@ -20,7 +20,11 @@ use App\Http\Controllers\KardexController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RespaldoController;
+use App\Http\Controllers\NotificacionController;
 use App\Enums\ReporteEnum;
+use App\Models\Rol;
 
 Route::post('auth/login', [AuthController::class, 'login']);
 
@@ -29,6 +33,14 @@ Route::get('producto/plantilla', [ProductoController::class, 'descargarPlantilla
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('auth/me', [AuthController::class, 'me']);
     Route::post('auth/logout', [AuthController::class, 'logout']);
+
+    Route::get('dashboard', [DashboardController::class, 'index'])->role(Rol::ADMINISTRADOR);
+    Route::get('respaldo/descargar', [RespaldoController::class, 'descargar'])->role(Rol::ADMINISTRADOR);
+
+    Route::get('notificacion', [NotificacionController::class, 'index']);
+    Route::post('notificacion/leer-todas', [NotificacionController::class, 'leerTodas']);
+    Route::patch('notificacion/{id}/leer', [NotificacionController::class, 'leer']);
+    Route::delete('notificacion/{id}', [NotificacionController::class, 'destroy']);
 
     Route::get('categoria/listar-select', [CategoriaController::class, 'listarSelect']);
     Route::get('producto/listar-select', [ProductoController::class, 'listarSelect']);
@@ -95,6 +107,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('orden-compra', [OrdenCompraController::class, 'store'])->permission('orden_compra.crear');
     Route::put('orden-compra/{id}', [OrdenCompraController::class, 'update'])->permission('orden_compra.editar');
     Route::post('orden-compra/{id}/recibir', [OrdenCompraController::class, 'recibir'])->permission('orden_compra.recibir');
+    Route::post('orden-compra/{id}/anular', [OrdenCompraController::class, 'anular'])->permission('orden_compra.editar');
 
     Route::get('cotizacion', [CotizacionController::class, 'index'])->permission('cotizacion.ver');
     Route::get('cotizacion/{id}', [CotizacionController::class, 'show'])->permission(['cotizacion.ver', 'cotizacion.editar']);

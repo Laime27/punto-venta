@@ -8,7 +8,7 @@ import type { CotizacionPayload } from "../../types/CotizacionType";
 import { useCotizacionDetalles } from "./useCotizacionDetalles";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/errorHandler";
-import { cotizacionFormSchema, type CotizacionFormData } from "../../validations/CotizacionValidation";
+import { cotizacionFormSchema, totalesCotizacionSchema, type CotizacionFormData } from "../../validations/CotizacionValidation";
 
 export const useCotizacionActualizar = (id: number) => {
   const navigate = useNavigate();
@@ -77,8 +77,14 @@ export const useCotizacionActualizar = (id: number) => {
   });
 
   const onSubmit = async (headerData: CotizacionFormData) => {
-    if (detalles.length === 0) {
-      toast.error("Debe agregar al menos un producto");
+    const validacion = totalesCotizacionSchema.safeParse({
+      detalles,
+      total: calcularTotal(),
+      descuento_global: headerData.descuento_global ?? 0,
+    });
+
+    if (!validacion.success) {
+      toast.error(validacion.error.issues[0].message);
       return;
     }
     

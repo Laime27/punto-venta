@@ -1,9 +1,18 @@
 import api from "@/lib/axiosConfig";
 
-import type { CotizacionType, CotizacionPayload } from "../types/CotizacionType";
+import type { CotizacionType, CotizacionPayload, FiltrosCotizacionType } from "../types/CotizacionType";
 
-export const listarCotizaciones = async (page=1) => {
-  const { data } = await api.get("/cotizacion", { params: { page } });
+export const listarCotizaciones = async (page: number, filtros: FiltrosCotizacionType) => {
+  const { data } = await api.get("/cotizacion", {
+    params: {
+      page,
+      search: filtros.search || undefined,
+      estado: filtros.estado === "todos" ? undefined : filtros.estado,
+      cliente_id: filtros.cliente_id ?? undefined,
+      fecha_inicio: filtros.fecha_inicio || undefined,
+      fecha_fin: filtros.fecha_fin || undefined,
+    },
+  });
   return data;
 };
 

@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { toast } from "sonner"
 import {
-  productoSchema,
+  crearProductoSchema,
   type ProductoFormValues,
 } from "../validations/ProductoValidation"
 import {
@@ -34,8 +34,13 @@ export const useProductoFormHook = () => {
     eliminarImagen,
   } = useSubirImagen()
 
+  const { data: unidades = [] } = useQuery({
+    queryKey: ["unidades"],
+    queryFn: listarUnidades,
+  })
+
   const form = useForm<ProductoFormValues>({
-    resolver: zodResolver(productoSchema) as any,
+    resolver: zodResolver(crearProductoSchema(unidades)) as any,
     defaultValues: {
       nombre: "",
       descripcion: "",
@@ -50,11 +55,6 @@ export const useProductoFormHook = () => {
       proveedores: [],
       disponible_venta: true,
     },
-  })
-
-  const { data: unidades = []} = useQuery({
-    queryKey: ["unidades"],
-    queryFn: listarUnidades,
   })
 
   const { data: productoData, isLoading: cargandoProducto } = useQuery({

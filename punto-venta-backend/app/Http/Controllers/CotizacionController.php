@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CotizacionRequest;
+use App\Http\Requests\FiltroCotizacionRequest;
 use App\Services\CotizacionService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -16,9 +17,9 @@ class CotizacionController extends Controller
         $this->cotizacionService = $cotizacionService;
     }
 
-    public function index()
+    public function index(FiltroCotizacionRequest $request)
     {
-        return response()->json($this->cotizacionService->listarCotizaciones());
+        return response()->json($this->cotizacionService->listarCotizaciones($request->validated()));
     }
 
     public function store(CotizacionRequest $request)

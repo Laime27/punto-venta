@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RolGrupoPermisos } from "./RolGrupoPermisos";
+import { RolGruposTabs } from "./RolGruposTabs";
 import type { EstadoGrupo } from "../hooks/useRolFormulario";
 import type { GrupoPermisosType } from "../types/RolType";
 import type { RolFormValues } from "../validations/RolValidation";
@@ -17,6 +18,8 @@ interface Props {
     seleccionados: Set<number>;
     totalSeleccionados: number;
     totalPermisos: number;
+    grupoActivo?: GrupoPermisosType;
+    seleccionarGrupo: (grupoId: number) => void;
     estadoGrupo: (grupo: GrupoPermisosType) => EstadoGrupo;
     alternarPermiso: (permisoId: number) => void;
     alternarGrupo: (grupo: GrupoPermisosType) => void;
@@ -29,6 +32,7 @@ interface Props {
 export function RolFormulario({ form, grupos, guardando, esEdicion, seleccion, onSubmit, onCancelar }: Props) {
   const { register, formState: { errors } } = form;
   const todosMarcados = seleccion.totalSeleccionados === seleccion.totalPermisos && seleccion.totalPermisos > 0;
+  const { grupoActivo } = seleccion;
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
@@ -60,19 +64,24 @@ export function RolFormulario({ form, grupos, guardando, esEdicion, seleccion, o
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {grupos.map((grupo) => (
+      <Card className="overflow-hidden p-0">
+        <RolGruposTabs
+          grupos={grupos}
+          grupoActivoId={grupoActivo?.id}
+          seleccionados={seleccion.seleccionados}
+          onSeleccionar={seleccion.seleccionarGrupo}
+        />
+        {grupoActivo && (
           <RolGrupoPermisos
-            key={grupo.id}
-            grupo={grupo}
-            estado={seleccion.estadoGrupo(grupo)}
+            grupo={grupoActivo}
+            estado={seleccion.estadoGrupo(grupoActivo)}
             seleccionados={seleccion.seleccionados}
             deshabilitado={guardando}
-            onAlternarGrupo={() => seleccion.alternarGrupo(grupo)}
+            onAlternarGrupo={() => seleccion.alternarGrupo(grupoActivo)}
             onAlternarPermiso={seleccion.alternarPermiso}
           />
-        ))}
-      </div>
+        )}
+      </Card>
 
       <div className="flex justify-end gap-3 pb-6">
         <Button type="button" variant="outline" onClick={onCancelar}>

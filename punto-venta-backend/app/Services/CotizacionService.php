@@ -19,14 +19,23 @@ class CotizacionService
         $this->tipoComprobanteService = $tipoComprobanteService;
     }
 
-    public function listarCotizaciones()
+    public function listarCotizaciones(array $filtros)
     {
         Cotizacion::where('estado', EstadoCotizacionEnum::PENDIENTE->value)
             ->whereNotNull('fecha_vencimiento')
             ->where('fecha_vencimiento', '<', now())
             ->update(['estado' => EstadoCotizacionEnum::VENCIDA->value]);
 
-        return Cotizacion::with(['cliente', 'user', 'comprobante:id,serie,correlativo'])->orderBy('id', 'desc')->paginate(10);
+        return Cotizacion::with(['cliente', 'user', 'comprobante:id,serie,correlativo'])
+            ->when($filtros['search'] ?? null, fn ($query, $search) => $query->where(
+                fn ($q) => $q->where('correlativo', 'like', "%{$search}%")->orWhere('serie', 'like', "%{$search}%")
+            ))
+            ->when($filtros['estado'] ?? null, fn ($query, $estado) => $query->where('estado', $estado))
+            ->when($filtros['cliente_id'] ?? null, fn ($query, $clienteId) => $query->where('cliente_id', $clienteId))
+            ->when($filtros['fecha_inicio'] ?? null, fn ($query, $fecha) => $query->whereDate('fecha_emision', '>=', $fecha))
+            ->when($filtros['fecha_fin'] ?? null, fn ($query, $fecha) => $query->whereDate('fecha_emision', '<=', $fecha))
+            ->orderBy('id', 'desc')
+            ->paginate(10);
     }
 
     public function crearCotizacion(array $data)
@@ -157,15 +166,10 @@ class CotizacionService
 
     private function calcularTotales(array $detalles, float $descuentoGeneral, float $porcentajeImpuesto): array
     {
-        $subtotalGeneral = 0;
-        
-        foreach ($detalles as $detalle) {
-            $precioUnitario = $detalle['precio_unitario'];
-            $cantidad = $detalle['cantidad'];
-            $descuentoUnitario = $detalle['descuento_unitario'] ?? 0;
-            
-            $subtotalLinea = ($precioUnitario * $cantidad) - $descuentoUnitario;
-            $subtotalGeneral += $subtotalLinea;
+        $subtotalGeneral = collect($detalles)->sum(fn (array $detalle) => $this->calcularSubtotalLinea($detalle));
+
+        if ($descuentoGeneral > $subtotalGeneral) {
+            throw new BusinessException('El descuento global no puede ser mayor al subtotal de la cotización.');
         }
 
         $subtotalGeneral -= $descuentoGeneral;
@@ -179,27 +183,27 @@ class CotizacionService
         ];
     }
 
+    private function calcularSubtotalLinea(array $detalle): float
+    {
+        return ($detalle['precio_unitario'] - ($detalle['descuento_unitario'] ?? 0)) * $detalle['cantidad'];
+    }
+
     private function sincronizarDetalles(Cotizacion $cotizacion, array $detalles)
     {
         $productosMantenidos = collect($detalles)->pluck('producto_id')->toArray();
         $cotizacion->detalles()->whereNotIn('producto_id', $productosMantenidos)->delete();
 
         foreach ($detalles as $detalle) {
-            $precioUnitario = $detalle['precio_unitario'];
-            $cantidad = $detalle['cantidad'];
-            $descuentoUnitario = $detalle['descuento_unitario'] ?? 0;
-            $subtotalLinea = ($precioUnitario * $cantidad) - $descuentoUnitario;
-
             CotizacionDetalle::updateOrCreate(
                 [
                     'cotizacion_id' => $cotizacion->id,
                     'producto_id' => $detalle['producto_id'],
                 ],
                 [
-                    'cantidad' => $cantidad,
-                    'precio_unitario' => $precioUnitario,
-                    'descuento_unitario' => $descuentoUnitario,
-                    'subtotal' => $subtotalLinea,
+                    'cantidad' => $detalle['cantidad'],
+                    'precio_unitario' => $detalle['precio_unitario'],
+                    'descuento_unitario' => $detalle['descuento_unitario'] ?? 0,
+                    'subtotal' => $this->calcularSubtotalLinea($detalle),
                 ]
             );
         }

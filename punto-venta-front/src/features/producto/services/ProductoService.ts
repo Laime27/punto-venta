@@ -3,6 +3,12 @@ import type { FiltrosProductosType, FilaImportacionPayloadType } from "../types/
 
 const BASE = "/producto";
 const MULTIPART_CONFIG = { headers: { "Content-Type": "multipart/form-data" } };
+const RUTA_PLANTILLA = "/Plantilla_Productos.xlsx";
+
+export const obtenerPlantillaProductos = async () => {
+  const { data } = await axios.get<Blob>(RUTA_PLANTILLA, { baseURL: "", responseType: "blob" });
+  return data;
+};
 
 export const listarProductos = async (pagina = 1, filtros: FiltrosProductosType = {}) => {
   const { data } = await axios.get(BASE, { params: { page: pagina, ...filtros } });

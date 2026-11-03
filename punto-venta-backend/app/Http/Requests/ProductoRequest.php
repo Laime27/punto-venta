@@ -38,6 +38,8 @@ class ProductoRequest extends FormRequest
     {
         return [
             'nombre.required'        => 'El nombre del producto es obligatorio.',
+            'nombre.unique'          => 'Ya existe un producto con ese nombre.',
+            'codigo_barras.unique'   => 'Ya existe un producto con ese código de barras.',
             'precio_venta.required'  => 'El precio de venta es obligatorio.',
             'imagen.image'           => 'El archivo debe ser una imagen.',
             'imagen.max'             => 'La imagen no debe superar los 2MB.',

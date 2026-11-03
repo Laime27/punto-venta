@@ -67,7 +67,7 @@ class ReporteVentasService
         return $userId ? DB::table('users')->where('id', $userId)->value('name') : null;
     }
 
-    private function indicadoresVentas(array $filtros): array
+    public function indicadoresVentas(array $filtros): array
     {
         $ventas = $this->ventasActivas($filtros);
         $anuladas = $this->ventasEnRango($filtros)->where('comprobantes.estado', EstadoComprobanteEnum::ANULADO->value);
@@ -121,7 +121,7 @@ class ReporteVentasService
         return $dias > self::DIAS_MAXIMOS_AGRUPACION_DIARIA ? 'mes' : 'dia';
     }
 
-    private function ventasPorPeriodo(array $filtros): Collection
+    public function ventasPorPeriodo(array $filtros): Collection
     {
         $porDia = $this->ventasActivas($filtros)
             ->selectRaw('DATE(comprobantes.fecha_emision) as fecha, COUNT(*) as cantidad, SUM(comprobantes.total) as total')

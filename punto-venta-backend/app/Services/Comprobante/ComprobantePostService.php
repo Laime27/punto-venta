@@ -150,11 +150,7 @@ class ComprobantePostService
         ]);
     }
 
-    /**
-     * Bloquea las filas de los productos hasta que termine la transacción, así dos ventas
-     * simultáneas no pueden descontar el mismo stock. Suma las cantidades por producto
-     * por si el mismo producto viene en más de una línea del carrito.
-     */
+  
     private function bloquearYValidarStock(array $carrito): Collection
     {
         $cantidades = collect($carrito)

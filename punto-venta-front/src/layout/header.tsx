@@ -1,11 +1,8 @@
 import {
   LogOut,
   Menu,
-  Bell,
-  MessageSquare,
   Moon,
   Sun,
-  User,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { NotificacionCampana } from "@/features/notificacion/components/NotificacionCampana";
 import { useDashboardHeader } from "./hooks/useDashboardHeader";
 
 function DashboardHeader() {
@@ -33,12 +31,7 @@ function DashboardHeader() {
       </Button>
 
       <div className="flex items-center gap-1 sm:gap-2 ml-auto">
-        <Button variant="ghost" size="icon">
-          <Bell className="h-5 w-5" />
-        </Button>
-        <Button variant="ghost" size="icon">
-          <MessageSquare className="h-5 w-5" />
-        </Button>
+        <NotificacionCampana />
 
         <Button variant="ghost" size="icon" onClick={cambiarTema}>
           {theme === "dark" ? (
@@ -57,16 +50,12 @@ function DashboardHeader() {
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <p className="text-sm font-semibold">{usuario.nombre}</p>
               <p className="text-xs font-normal text-muted-foreground">{usuario.rol}</p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <User className="mr-2 h-4 w-4" />
-              <span>Perfil</span>
-            </DropdownMenuItem>
             <DropdownMenuItem onClick={cerrarSesion} className="cursor-pointer text-destructive focus:text-destructive">
               <LogOut className="mr-2 h-4 w-4" />
               <span>Cerrar sesión</span>

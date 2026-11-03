@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "cross-env NODE_OPTIONS=--max-old-space-size=4096 vite",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=4096 tsc -b && vite build",
+    "tauri": "tauri",
+    "backend:preparar": "powershell -ExecutionPolicy Bypass -File scripts/preparar-backend.ps1",
+    "instalador": "pnpm backend:preparar && pnpm tauri build",
     "prepare:backend": "bash scripts/prepare-backend.sh",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx}\"",

@@ -56,7 +56,11 @@ export function UsuarioModal({ usuario, roles, onClose }: Props) {
               control={control}
               name="rol_id"
               render={({ field }) => (
-                <Select value={field.value ? String(field.value) : ""} onValueChange={(valor) => field.onChange(Number(valor))}>
+                <Select
+                  value={field.value ? String(field.value) : ""}
+                  onValueChange={(valor) => field.onChange(Number(valor))}
+                  disabled={Boolean(usuario?.es_dueno)}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Seleccionar rol" />
                   </SelectTrigger>
@@ -70,6 +74,7 @@ export function UsuarioModal({ usuario, roles, onClose }: Props) {
                 </Select>
               )}
             />
+            {usuario?.es_dueno && <p className="text-xs text-muted-foreground">El rol del dueño del sistema no se puede cambiar.</p>}
             {errors.rol_id && <p className="text-sm text-destructive">{errors.rol_id.message}</p>}
           </div>
 

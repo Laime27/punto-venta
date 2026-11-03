@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Enums\TipoMovimientoEnum;
+use App\Exceptions\BusinessException;
 use App\Models\HistorialMovimiento;
 use App\Models\Producto;
+use App\Models\Unidad;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +19,13 @@ use App\Imports\ProductoLecturaImport;
 
 class ProductoService
 {
+    private const REGISTROS_QUE_IMPIDEN_ELIMINAR = [
+        'comprobanteDetalles' => 'ventas',
+        'cotizacionDetalles' => 'cotizaciones',
+        'ordenCompraDetalles' => 'órdenes de compra',
+        'ajusteInventarioDetalles' => 'ajustes de inventario',
+    ];
+
     public function __construct(
         protected ImagenService $imagenService,
         protected CodigoBarrasService $codigoBarrasService
@@ -96,13 +105,14 @@ class ProductoService
 
     public function crearProducto(array $datos, $imagen = null): Producto
     {
-        if ($imagen) {
-            $datos['imagen'] = $this->imagenService->guardar($imagen, 'productos');
-        }
-
         $proveedores = $datos['proveedores'] ?? [];
         unset($datos['proveedores']);
         $datos = $this->sinCostoSiNoAutorizado($datos);
+        $this->validarDatosProducto($datos);
+
+        if ($imagen) {
+            $datos['imagen'] = $this->imagenService->guardar($imagen, 'productos');
+        }
 
         $producto = DB::transaction(function () use ($datos, $proveedores) {
             $producto = Producto::create($datos);
@@ -132,13 +142,14 @@ class ProductoService
     {
         $producto = Producto::findOrFail($id);
 
-        if ($imagen) {
-            $datos['imagen'] = $this->imagenService->actualizar($producto->imagen, $imagen, 'productos');
-        }
-
         $proveedores = $datos['proveedores'] ?? null;
         unset($datos['proveedores']);
         $datos = $this->sinCostoSiNoAutorizado($datos);
+        $this->validarDatosProducto($datos, $producto);
+
+        if ($imagen) {
+            $datos['imagen'] = $this->imagenService->actualizar($producto->imagen, $imagen, 'productos');
+        }
 
         if (array_key_exists('codigo_barras', $datos) && blank($datos['codigo_barras'])) {
             $datos['codigo_barras'] = $producto->codigo_barras ?: $this->codigoBarrasService->generar($producto->id);
@@ -201,7 +212,33 @@ class ProductoService
 
     public function eliminarProducto(int $id): void
     {
-        Producto::findOrFail($id)->delete();
+        $producto = Producto::findOrFail($id);
+
+        $registros = collect(self::REGISTROS_QUE_IMPIDEN_ELIMINAR)
+            ->filter(fn (string $etiqueta, string $relacion) => $producto->{$relacion}()->exists());
+
+        if ($registros->isNotEmpty()) {
+            throw new BusinessException("No se puede eliminar {$producto->nombre} porque tiene {$registros->join(', ', ' y ')}. Quítalo de la venta para dejar de ofrecerlo.");
+        }
+
+        $producto->delete();
+    }
+
+    private function validarDatosProducto(array $datos, ?Producto $producto = null): void
+    {
+        $costo = (float) ($datos['precio_compra'] ?? $producto?->precio_compra ?? 0);
+        $precioVenta = (float) ($datos['precio_venta'] ?? $producto?->precio_venta ?? 0);
+
+        if ($precioVenta < $costo) {
+            throw new BusinessException('El precio de venta no puede ser menor al precio de costo.');
+        }
+
+        $stock = (float) ($datos['stock'] ?? 0);
+        $unidad = Unidad::find($datos['unidad_id'] ?? $producto?->unidad_id);
+
+        if ($unidad && !$unidad->permite_decimales && floor($stock) !== $stock) {
+            throw new BusinessException("La unidad {$unidad->nombre} no permite stock con decimales.");
+        }
     }
 
     public function importarProductos(UploadedFile $archivo, int $userId): array

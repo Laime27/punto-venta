@@ -1,4 +1,4 @@
-import { LayoutDashboard, Tags, Package, Truck, Users, CreditCard, ArrowLeftRight, ShoppingCart, Receipt, Vault, Building2, Printer, FileText, ScanBarcode, ClipboardCheck, BarChart3, PackageSearch, HandCoins, Warehouse, TriangleAlert, UserCog, ShieldCheck, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, Tags, Package, Truck, Users, CreditCard, ArrowLeftRight, ShoppingCart, Receipt, Vault, Building2, Printer, FileText, ScanBarcode, ClipboardCheck, BarChart3, PackageSearch, HandCoins, Warehouse, TriangleAlert, UserCog, ShieldCheck, DatabaseBackup, type LucideIcon } from "lucide-react";
 import type { RequisitoPermiso } from "@/features/auth/hooks/usePermisos";
 
 export interface MenuItemsProps {
@@ -6,6 +6,7 @@ export interface MenuItemsProps {
   icon: LucideIcon;
   url: string;
   permiso?: RequisitoPermiso;
+  soloAdministrador?: boolean;
 }
 
 export interface MenuGroup {
@@ -70,4 +71,5 @@ export const configItems: MenuItemsProps[] = [
   { label: "Impresora", icon: Printer, url: "/impresora", permiso: "configuracion.impresora" },
   { label: "Usuarios", icon: UserCog, url: "/usuarios", permiso: "usuario.ver" },
   { label: "Roles y permisos", icon: ShieldCheck, url: "/roles", permiso: "rol.gestionar" },
+  { label: "Copia de seguridad", icon: DatabaseBackup, url: "/respaldo", soloAdministrador: true },
 ];

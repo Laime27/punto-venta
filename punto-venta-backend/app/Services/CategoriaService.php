@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Exceptions\BusinessException;
 use App\Models\Categoria;
+use App\Models\Producto;
 
 class CategoriaService
 {
@@ -44,6 +46,12 @@ class CategoriaService
     public function eliminarCategoria(int $id)
     {
         $categoria = Categoria::findOrFail($id);
+        $productos = Producto::where('categoria_id', $categoria->id)->count();
+
+        if ($productos > 0) {
+            throw new BusinessException("No se puede eliminar la categoría {$categoria->nombre} porque tiene {$productos} producto(s) asignado(s).");
+        }
+
         return $categoria->delete();
     }
 }

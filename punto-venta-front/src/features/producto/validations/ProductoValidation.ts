@@ -1,4 +1,5 @@
 import { z } from "zod"
+import type { UnidadType } from "@/features/unidad/types/UnidadType"
 
 export const productoSchema = z.object({
   nombre: z.string().min(1, "El nombre es requerido"),
@@ -16,5 +17,25 @@ export const productoSchema = z.object({
   proveedores: z.array(z.number()).default([]),
   disponible_venta: z.boolean().default(true),
 })
+
+export const crearProductoSchema = (unidades: UnidadType[]) =>
+  productoSchema.superRefine(({ precio_compra, precio_venta, stock, unidad_id }, contexto) => {
+    if (precio_venta < precio_compra) {
+      contexto.addIssue({
+        code: "custom",
+        path: ["precio_venta"],
+        message: "El precio de venta no puede ser menor al precio de costo",
+      })
+    }
+
+    const unidad = unidades.find(({ id }) => id === unidad_id)
+    if (unidad && !unidad.permite_decimales && !Number.isInteger(stock)) {
+      contexto.addIssue({
+        code: "custom",
+        path: ["stock"],
+        message: `La unidad ${unidad.nombre} no permite stock con decimales`,
+      })
+    }
+  })
 
 export type ProductoFormValues = z.infer<typeof productoSchema>

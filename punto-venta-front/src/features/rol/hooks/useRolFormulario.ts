@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +18,7 @@ export const useRolFormulario = () => {
   const queryClient = useQueryClient();
   const { id } = useParams<{ id: string }>();
   const rolId = id ? Number(id) : null;
+  const [grupoActivoId, setGrupoActivoId] = useState<number | null>(null);
 
   const { data: grupos = [], isLoading: cargandoGrupos } = useQuery({
     queryKey: ["permisos-agrupados"],
@@ -38,6 +40,7 @@ export const useRolFormulario = () => {
 
   const seleccionados = new Set(useWatch({ control: form.control, name: "permisos" }));
   const totalPermisos = grupos.reduce((acc, grupo) => acc + grupo.permisos.length, 0);
+  const grupoActivo = grupos.find((grupo) => grupo.id === grupoActivoId) ?? grupos[0];
 
   const asignarPermisos = (permisos: Set<number>) =>
     form.setValue("permisos", [...permisos], { shouldValidate: form.formState.isSubmitted, shouldDirty: true });
@@ -92,6 +95,8 @@ export const useRolFormulario = () => {
       seleccionados,
       totalSeleccionados: seleccionados.size,
       totalPermisos,
+      grupoActivo,
+      seleccionarGrupo: setGrupoActivoId,
       estadoGrupo,
       alternarPermiso,
       alternarGrupo,

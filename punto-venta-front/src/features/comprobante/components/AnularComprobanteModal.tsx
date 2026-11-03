@@ -8,7 +8,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle, Loader2, Ban } from "lucide-react";
+import { AlertTriangle, Loader2, Ban, HandCoins } from "lucide-react";
+import { useMonedaHook } from "@/features/empresa/hooks/useMonedaHook";
 import { useAnularComprobante } from "../hooks/useAnularComprobante";
 import type { ComprobanteType } from "../types/ComprobanteType";
 
@@ -34,11 +35,14 @@ export function AnularComprobanteModal({
   const estaAbierto = abierto ?? open ?? false;
   const funcionCerrar = alCerrar ?? onClose ?? (() => {});
   const funcionExito = alExito ?? onSuccess;
+  const { formatearMonto } = useMonedaHook();
 
   const {
     motivo,
     setMotivo,
     estaEnviando,
+    montoADevolver,
+    metodosDevolucion,
     cerrarModal,
     confirmarAnulacion,
   } = useAnularComprobante({
@@ -71,6 +75,15 @@ export function AnularComprobanteModal({
               <strong>Advertencia:</strong> Esta acción no se puede deshacer. Los productos volverán al stock y el comprobante pasará a estado <strong>anulado</strong>.
             </span>
           </div>
+
+          {montoADevolver > 0 && (
+            <div className="p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-start gap-2.5 text-xs text-amber-700 dark:text-amber-400">
+              <HandCoins className="h-4 w-4 shrink-0 mt-0.5" />
+              <span>
+                <strong>Dinero a devolver:</strong> se cobraron {formatearMonto(montoADevolver)} ({metodosDevolucion}). Debes devolverlo al cliente; dejará de contarse en la caja al anular.
+              </span>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <Label htmlFor="motivo" className="text-sm font-bold text-foreground">

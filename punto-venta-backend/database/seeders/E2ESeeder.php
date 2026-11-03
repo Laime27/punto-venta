@@ -21,7 +21,7 @@ class E2ESeeder extends Seeder
 
     public function run(): void
     {
-        $this->call([RolesPermisosSeeder::class, DatabaseSeeder::class]);
+        $this->call(DatabaseSeeder::class);
 
         foreach (self::USUARIOS as $datos) {
             User::create([

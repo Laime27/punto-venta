@@ -51,3 +51,11 @@ export interface CotizacionPayload {
     descuento_unitario?: number;
   }[];
 }
+
+export interface FiltrosCotizacionType {
+  search: string;
+  estado: string;
+  cliente_id: number | null;
+  fecha_inicio: string;
+  fecha_fin: string;
+}

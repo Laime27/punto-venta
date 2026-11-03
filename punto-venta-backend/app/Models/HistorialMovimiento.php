@@ -15,14 +15,19 @@ class HistorialMovimiento extends Model
 
     protected $appends = ['nombre_documento'];
 
+    private const NOMBRES_DOCUMENTO = [
+        Comprobante::class => 'Comprobante',
+        OrdenCompra::class => 'Orden de compra',
+        AjusteInventario::class => 'Ajuste de inventario',
+    ];
+
     public function getNombreDocumentoAttribute()
     {
         if (!$this->documento_type) {
             return ' ';
         }
         
-        $partes = explode('\\', $this->documento_type);
-        return end($partes);
+        return self::NOMBRES_DOCUMENTO[$this->documento_type] ?? class_basename($this->documento_type);
     }
 
     public function producto()

@@ -18,7 +18,7 @@ export const ordenCompraRecibirSchema = z.object({
   detalles: z.array(
     z.object({
       id: z.number().min(1, "El ID del detalle es obligatorio"),
-      cantidad_recibida: z.number().min(0, "La cantidad no puede ser negativa"),
+      cantidad_recibida: z.number({ message: "Ingresa la cantidad recibida" }).min(0, "La cantidad no puede ser negativa"),
       precio_unitario: z.number().min(0, "El precio no puede ser negativo").optional(),
     })
   ).min(1, "Los detalles son obligatorios"),

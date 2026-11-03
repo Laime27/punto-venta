@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 import DashboardLayout from "@/layout/dashboard";
+import { PaginaNoEncontrada } from "@/components/PaginaNoEncontrada";
 import Auth from "@/features/auth";
 import { ProtectedRoute, PublicRoute } from "./ProtectedRoute";
-import { PermisoRoute } from "./PermisoRoute";
+import { AdministradorRoute, PermisoRoute } from "./PermisoRoute";
 import type { RequisitoPermiso } from "@/features/auth/hooks/usePermisos";
 import Dashboard from "@/features/admin/dashboard";
 import Categoria from "@/features/categoria";
@@ -40,6 +41,7 @@ import { ReportePerdidasPage } from "@/features/reporte/pages/ReportePerdidasPag
 import Usuario from "@/features/usuario";
 import Rol from "@/features/rol";
 import { RolFormPage } from "@/features/rol/pages/RolFormPage";
+import Respaldo from "@/features/respaldo";
 
 const ruta = (path: string, permiso: RequisitoPermiso, element: ReactNode) => ({
   path,
@@ -100,6 +102,8 @@ export const routes = [
           ruta("/roles", "rol.gestionar", <Rol />),
           ruta("/roles/crear", "rol.gestionar", <RolFormPage />),
           ruta("/roles/:id/editar", "rol.gestionar", <RolFormPage />),
+          { path: "/respaldo", element: <AdministradorRoute><Respaldo /></AdministradorRoute> },
+          { path: "*", element: <PaginaNoEncontrada /> },
         ]
       }
     ]

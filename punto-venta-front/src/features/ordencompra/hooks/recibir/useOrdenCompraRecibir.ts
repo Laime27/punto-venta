@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { obtenerOrdenCompraId, recibirOrdenCompra } from "../../services/OrdenCompraService";
 import { ordenCompraRecibirSchema } from "../../validations/OrdenCompraValidation";
-import type { OrdenCompraRecibirPayload } from "../../types/OrdenCompraType";
+import type { OrdenCompraDetalleType, OrdenCompraRecibirPayload } from "../../types/OrdenCompraType";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/errorHandler";
 import { z } from "zod";
@@ -34,10 +34,10 @@ export const useOrdenCompraRecibir = () => {
   useEffect(() => {
     if (ordenCompra?.detalles) {
       replace(
-        ordenCompra.detalles.map((d: any) => ({
-          id: d.id,
-          cantidad_recibida: 0,
-          precio_unitario: d.precio_unitario,
+        ordenCompra.detalles.map((d: OrdenCompraDetalleType) => ({
+          id: Number(d.id),
+          cantidad_recibida: Number(d.cantidad_recibida ?? 0),
+          precio_unitario: Number(d.precio_unitario),
         }))
       );
     }

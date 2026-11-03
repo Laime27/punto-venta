@@ -37,4 +37,19 @@ class Producto extends Model
     {
         return $this->hasMany(ComprobanteDetalle::class);
     }
+
+    public function cotizacionDetalles()
+    {
+        return $this->hasMany(CotizacionDetalle::class);
+    }
+
+    public function ordenCompraDetalles()
+    {
+        return $this->hasMany(OrdenCompraDetalle::class);
+    }
+
+    public function ajusteInventarioDetalles()
+    {
+        return $this->hasMany(AjusteInventarioDetalle::class);
+    }
 }
